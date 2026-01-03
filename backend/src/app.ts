@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 import { testConnection } from './config/database.js';
@@ -16,8 +16,9 @@ import { systemRoutes } from './routes/system.routes.js';
 // Load environment variables
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Removed unused __filename and __dirname to avoid CJS/ESM conflicts
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -108,15 +109,17 @@ async function start() {
     }
 
     app.listen(PORT, () => {
-        console.log(`
-╔═══════════════════════════════════════════════╗
-║  🚀 CMS Engine Backend                        ║
-║  ─────────────────────────────────────────────║
-║  Port:     ${PORT}                              ║
-║  Mode:     ${process.env.NODE_ENV || 'development'}                    ║
-║  API:      http://localhost:${PORT}/api         ║
-╚═══════════════════════════════════════════════╝
-    `);
+        //     console.log(`
+        // ╔═══════════════════════════════════════════════╗
+        // ║  🚀 CMS Engine Backend                        ║
+        // ║  ─────────────────────────────────────────────║
+        // ║  Port:     ${PORT}                              ║
+        // ║  Mode:     ${process.env.NODE_ENV || 'development'}                    ║
+        // ║  API:      http://localhost:${PORT}/api         ║
+        // ╚═══════════════════════════════════════════════╝
+        //     `);
+        console.log(`Server running on port ${PORT}`);
+
     });
 }
 
