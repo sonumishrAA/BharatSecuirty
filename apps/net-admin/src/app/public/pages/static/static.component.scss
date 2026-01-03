@@ -1,0 +1,137 @@
+@use '../../../../styles/variables' as *;
+
+.static-page {
+    padding: 80px 0 120px;
+}
+
+// ===== HERO =====
+.static-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $space-md;
+    margin-bottom: $space-2xl;
+}
+
+.static-line {
+    width: 4px;
+    height: 72px;
+    margin: 0 auto;
+    background: linear-gradient(to bottom, transparent, $public-neon-cyan, transparent);
+}
+
+.static-hero h1 {
+    font-size: 38px;
+    font-weight: 700;
+
+    span {
+        color: $public-neon-cyan;
+    }
+}
+
+.static-hero p {
+    font-size: 15px;
+    color: $public-text-muted;
+    max-width: 640px;
+}
+
+// ===== CONTENT =====
+.static-content {
+    max-width: 820px;
+    margin: 0 auto;
+    font-size: $font-lg;
+    line-height: 1.9;
+
+    h2 {
+        margin-top: 42px;
+        margin-bottom: $space-md;
+        font-size: 18px;
+    }
+
+    p {
+        margin-bottom: 18px;
+        color: $public-text-main;
+    }
+}
+
+// ===== FEATURES GRID =====
+.features-grid {
+    margin-top: $space-2xl;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: $space-lg;
+}
+
+.feature-card {
+    padding: 22px;
+    border-radius: $radius-xl;
+    background: rgba($public-bg-soft, 0.45);
+    border: 1px solid rgba(white, 0.06);
+    backdrop-filter: blur(12px);
+    transition: transform $transition-normal, box-shadow $transition-normal;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 14px 34px rgba($public-neon-cyan, 0.18);
+    }
+
+    .icon {
+        font-size: 28px;
+        margin-bottom: $space-md;
+        display: block;
+    }
+
+    h3 {
+        font-size: $font-lg;
+        margin-bottom: $space-sm;
+    }
+
+    p {
+        font-size: $font-md;
+        line-height: 1.7;
+        color: $public-text-muted;
+    }
+}
+
+// ===== CONTACT =====
+.contact-info {
+    margin-top: $space-xl;
+    display: flex;
+    gap: $space-lg;
+    flex-wrap: wrap;
+}
+
+.contact-card {
+    padding: 22px;
+    border-radius: $radius-xl;
+    background: rgba($public-bg-soft, 0.45);
+    border: 1px solid rgba(white, 0.06);
+    min-width: 200px;
+
+    .icon {
+        font-size: 28px;
+        margin-bottom: $space-sm;
+        display: block;
+    }
+
+    h3 {
+        font-size: $font-lg;
+        margin-bottom: $space-xs;
+    }
+
+    p {
+        color: $public-neon-cyan;
+    }
+}
+
+// ===== MOBILE =====
+@media (max-width: $breakpoint-md) {
+    .static-hero h1 {
+        font-size: 30px;
+    }
+
+    .static-content {
+        font-size: 15px;
+    }
+}

@@ -1,0 +1,110 @@
+@use '../../../../styles/variables' as *;
+
+// ===== HERO =====
+.hero-dual {
+    padding: 80px 0 60px;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+    gap: 40px;
+}
+
+.hero-left {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.hero-line {
+    width: 4px;
+    height: 88px;
+    background: linear-gradient(to bottom, transparent, $public-neon-cyan, transparent);
+}
+
+.hero-left h1 {
+    font-size: 40px;
+    font-weight: 700;
+
+    span {
+        color: $public-neon-cyan;
+    }
+}
+
+.hero-sub {
+    margin-top: $space-sm;
+    font-size: 15px;
+    color: $public-text-muted;
+}
+
+.hero-icons-row {
+    margin-top: 18px;
+    display: flex;
+    gap: $space-md;
+    flex-wrap: wrap;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-xs;
+        font-size: $font-sm;
+        padding: $space-xs $space-sm;
+        border-radius: $radius-full;
+        border: 1px solid rgba($public-neon-cyan, 0.35);
+        color: $public-neon-cyan;
+    }
+}
+
+// ===== HERO CARDS =====
+.hero-right {
+    display: flex;
+    gap: $space-md;
+    justify-content: flex-end;
+}
+
+.hero-card {
+    width: 110px;
+    height: 110px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $space-sm;
+
+    background: rgba($public-bg-soft, 0.45);
+    border: 1px solid rgba($public-neon-cyan, 0.25);
+    color: $public-neon-cyan;
+    font-size: $font-sm;
+    font-weight: 500;
+
+    backdrop-filter: blur(10px);
+    transition: transform $transition-normal, box-shadow $transition-normal;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba($public-neon-cyan, 0.25);
+    }
+
+    span:first-child {
+        font-size: 22px;
+    }
+}
+
+// ===== MOBILE =====
+@media (max-width: 900px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: $space-xl;
+    }
+
+    .hero-right {
+        justify-content: flex-start;
+    }
+
+    .hero-left h1 {
+        font-size: $font-3xl;
+    }
+}

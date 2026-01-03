@@ -1,0 +1,186 @@
+<div class="case-studies-page">
+    <div class="page-header">
+        <h2>📋 Case Studies</h2>
+        <p>Manage case studies for the public website</p>
+        <button class="btn-primary" (click)="startCreate()" *ngIf="!isCreating && !editingCase">
+            + New Case Study
+        </button>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+    <!-- Loading -->
+    <div class="loading" *ngIf="loading">Loading case studies...</div>
+
+    <!-- Create Form -->
+    <div class="case-form" *ngIf="isCreating">
+        <h3>New Case Study</h3>
+
+        <div class="form-grid">
+            <div class="form-row">
+                <label>Title *</label>
+                <input type="text" [(ngModel)]="newCase.title" placeholder="FinTech Security Overhaul">
+            </div>
+            <div class="form-row">
+                <label>Client Name *</label>
+                <input type="text" [(ngModel)]="newCase.client_name" placeholder="PaySecure India">
+            </div>
+            <div class="form-row">
+                <label>Client Logo (emoji)</label>
+                <input type="text" [(ngModel)]="newCase.client_logo" placeholder="💳">
+            </div>
+            <div class="form-row">
+                <label>Industry *</label>
+                <input type="text" [(ngModel)]="newCase.industry" placeholder="Financial Services">
+            </div>
+            <div class="form-row full">
+                <label>Challenge *</label>
+                <textarea [(ngModel)]="newCase.challenge" rows="3"
+                    placeholder="Describe the security challenge..."></textarea>
+            </div>
+            <div class="form-row full">
+                <label>Solution *</label>
+                <textarea [(ngModel)]="newCase.solution" rows="3"
+                    placeholder="Describe the solution implemented..."></textarea>
+            </div>
+            <div class="form-row">
+                <label>Impact (short) *</label>
+                <input type="text" [(ngModel)]="newCase.impact" placeholder="100% Vulnerability Fix">
+            </div>
+            <div class="form-row full">
+                <label>Result Metrics</label>
+                <textarea [(ngModel)]="newCase.result_metrics" rows="2" placeholder="Detailed metrics..."></textarea>
+            </div>
+            <div class="form-row">
+                <label>Cover Image URL</label>
+                <input type="text" [(ngModel)]="newCase.cover_image_url" placeholder="https://...">
+            </div>
+            <div class="form-row">
+                <label>Sort Order</label>
+                <input type="number" [(ngModel)]="newCase.sort_order">
+            </div>
+            <div class="form-row checkbox-row">
+                <label>
+                    <input type="checkbox" [(ngModel)]="newCase.featured">
+                    Featured on home page
+                </label>
+            </div>
+            <div class="form-row">
+                <label>Status</label>
+                <select [(ngModel)]="newCase.status">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-success" (click)="createCase()">Create</button>
+            <button class="btn-secondary" (click)="cancelCreate()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="case-form" *ngIf="editingCase">
+        <h3>Edit Case Study</h3>
+
+        <div class="form-grid">
+            <div class="form-row">
+                <label>Title *</label>
+                <input type="text" [(ngModel)]="editingCase.title" placeholder="FinTech Security Overhaul">
+            </div>
+            <div class="form-row">
+                <label>Client Name *</label>
+                <input type="text" [(ngModel)]="editingCase.client_name" placeholder="PaySecure India">
+            </div>
+            <div class="form-row">
+                <label>Client Logo (emoji)</label>
+                <input type="text" [(ngModel)]="editingCase.client_logo" placeholder="💳">
+            </div>
+            <div class="form-row">
+                <label>Industry *</label>
+                <input type="text" [(ngModel)]="editingCase.industry" placeholder="Financial Services">
+            </div>
+            <div class="form-row full">
+                <label>Challenge *</label>
+                <textarea [(ngModel)]="editingCase.challenge" rows="3"
+                    placeholder="Describe the challenge..."></textarea>
+            </div>
+            <div class="form-row full">
+                <label>Solution *</label>
+                <textarea [(ngModel)]="editingCase.solution" rows="3" placeholder="Describe the solution..."></textarea>
+            </div>
+            <div class="form-row">
+                <label>Impact (short) *</label>
+                <input type="text" [(ngModel)]="editingCase.impact" placeholder="100% Vulnerability Fix">
+            </div>
+            <div class="form-row full">
+                <label>Result Metrics</label>
+                <textarea [(ngModel)]="editingCase.result_metrics" rows="2"
+                    placeholder="Detailed metrics..."></textarea>
+            </div>
+            <div class="form-row">
+                <label>Cover Image URL</label>
+                <input type="text" [(ngModel)]="editingCase.cover_image_url" placeholder="https://...">
+            </div>
+            <div class="form-row">
+                <label>Sort Order</label>
+                <input type="number" [(ngModel)]="editingCase.sort_order">
+            </div>
+            <div class="form-row checkbox-row">
+                <label>
+                    <input type="checkbox" [(ngModel)]="editingCase.featured">
+                    Featured on home page
+                </label>
+            </div>
+            <div class="form-row">
+                <label>Status</label>
+                <select [(ngModel)]="editingCase.status">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-success" (click)="saveCase()">Save</button>
+            <button class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Case Studies List -->
+    <div class="cases-list" *ngIf="caseStudies.length > 0 && !loading && !isCreating && !editingCase">
+        <div class="case-card" *ngFor="let cs of caseStudies" [class.inactive]="cs.status === 'inactive'">
+            <div class="case-header">
+                <span class="case-logo">{{ cs.client_logo }}</span>
+                <div class="case-meta">
+                    <h3>{{ cs.title }}</h3>
+                    <span class="client">{{ cs.client_name }} · {{ cs.industry }}</span>
+                </div>
+                <span class="status-badge" [class.active]="cs.status === 'active'">
+                    {{ cs.status }}
+                </span>
+            </div>
+            <div class="case-body">
+                <div class="impact-box">
+                    <span class="impact-label">Impact:</span>
+                    <span class="impact-value">{{ cs.impact }}</span>
+                </div>
+                <p class="challenge">{{ cs.challenge | slice:0:150 }}{{ cs.challenge.length > 150 ? '...' : '' }}</p>
+            </div>
+            <div class="case-actions">
+                <button class="btn-sm btn-edit" (click)="startEdit(cs)">Edit</button>
+                <button class="btn-sm btn-toggle" (click)="toggleStatus(cs)">
+                    {{ cs.status === 'active' ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button class="btn-sm btn-danger" (click)="deleteCase(cs)">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="caseStudies.length === 0 && !loading && !isCreating">
+        <p>No case studies yet. Click "New Case Study" to create one.</p>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+<article class="post-view">
+    <div class="container">
+        @if (loading()) {
+        <!-- SKELETON LOADER -->
+        <div class="skeleton-post">
+            <div class="skeleton-meta">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line tiny"></div>
+            </div>
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-cover"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line medium"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line medium"></div>
+            </div>
+        </div>
+        }
+
+        @if (!loading() && post()) {
+        <!-- COVER IMAGE -->
+        @if (post()!.cover_image_url) {
+        <div class="post-cover">
+            <img [src]="post()!.cover_image_url" [alt]="post()!.title" />
+        </div>
+        }
+
+        <!-- META -->
+        <div class="post-meta">
+            <span class="post-date">{{ post()!.created_at | date:'mediumDate' }}</span>
+            <span class="post-category">{{ post()!.category }}</span>
+        </div>
+
+        <!-- TITLE -->
+        <h1 class="post-title">{{ post()!.title }}</h1>
+
+        <!-- CONTENT -->
+        <div class="post-content" [innerHTML]="renderContent()"></div>
+        }
+
+        @if (!loading() && !post()) {
+        <p class="not-found">Post not found</p>
+        }
+    </div>
+</article>

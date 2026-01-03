@@ -1,0 +1,74 @@
+<div class="dashboard">
+    <h1>Dashboard</h1>
+    <p class="muted">All posts (stable list)</p>
+
+    @if (loading()) {
+    <p class="muted">Loading…</p>
+    }
+
+    <div class="card">
+        <table class="posts-table">
+            <thead>
+                <tr>
+                    <th>Post</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Published</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (post of posts(); track post.id) {
+                <tr class="post-row">
+                    <!-- TITLE + COVER -->
+                    <td>
+                        <div class="post-title">
+                            @if (post.cover_image_url) {
+                            <img [src]="post.cover_image_url" alt="" class="post-thumb" />
+                            }
+                            <span>{{ post.title }}</span>
+                        </div>
+                    </td>
+
+                    <!-- CATEGORY -->
+                    <td>
+                        <span class="badge">{{ post.category || '—' }}</span>
+                    </td>
+
+                    <!-- STATUS -->
+                    <td>
+                        <span class="status" [class.published]="post.status === 'published'"
+                            [class.draft]="post.status === 'draft'">
+                            {{ post.status }}
+                        </span>
+                    </td>
+
+                    <!-- TOGGLE -->
+                    <td>
+                        <label class="ios-toggle">
+                            <input type="checkbox" [checked]="post.status === 'published'"
+                                (change)="toggleStatus(post)" />
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="actions">
+                            <button (click)="editPost(post.id)">✏️</button>
+                            <button class="danger" (click)="deletePost(post.id)">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                }
+
+                @if (!loading() && posts().length === 0) {
+                <tr>
+                    <td colspan="5" class="muted">No posts yet</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

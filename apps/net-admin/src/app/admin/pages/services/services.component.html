@@ -1,0 +1,108 @@
+<div class="page-header">
+    <h2>Services Management</h2>
+    <div class="actions">
+        <button class="btn btn-primary" (click)="openAddForm()">
+            + Add New Service
+        </button>
+    </div>
+</div>
+
+<!-- Add/Edit Service Form -->
+@if (showForm) {
+<div class="card form-card">
+    <div class="form-header">
+        <h3>{{ isEditMode ? 'Edit Service' : 'Add New Service' }}</h3>
+        <button class="btn-close" (click)="closeForm()">✕</button>
+    </div>
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Title *</label>
+            <input type="text" [(ngModel)]="serviceForm.title" placeholder="e.g., Web Application Security">
+        </div>
+        <div class="form-group">
+            <label>Icon (Material Icon Name)</label>
+            <input type="text" [(ngModel)]="serviceForm.icon" placeholder="e.g., security, language, cloud">
+        </div>
+        <div class="form-group full-width">
+            <label>Description *</label>
+            <textarea [(ngModel)]="serviceForm.description" rows="3" placeholder="Service description..."></textarea>
+        </div>
+        <div class="form-group full-width">
+            <label>Features</label>
+            <div class="features-input">
+                <input type="text" [(ngModel)]="featureInput" placeholder="Add a feature..."
+                    (keyup.enter)="addFeature()">
+                <button type="button" class="btn btn-secondary" (click)="addFeature()">Add</button>
+            </div>
+            <div class="features-list">
+                @for (feature of serviceForm.features; track feature; let i = $index) {
+                <span class="feature-tag">
+                    {{ feature }}
+                    <button type="button" (click)="removeFeature(i)">×</button>
+                </span>
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select [(ngModel)]="serviceForm.status">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitForm()">
+            {{ isEditMode ? 'Update Service' : 'Create Service' }}
+        </button>
+    </div>
+</div>
+}
+
+<!-- Services List -->
+<div class="card">
+    @if (loading()) {
+    <div class="loading">Loading services...</div>
+    }
+
+    @if (!loading() && services().length === 0) {
+    <div class="empty-state">
+        <p>No services found. Click "Add New Service" to create one.</p>
+    </div>
+    }
+
+    @if (!loading() && services().length > 0) {
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Icon</th>
+                <th>Title</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Features</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (service of services(); track service.id) {
+            <tr>
+                <td><span class="service-icon">{{ service.icon }}</span></td>
+                <td><strong>{{ service.title }}</strong></td>
+                <td><code>{{ service.slug }}</code></td>
+                <td>
+                    <span class="badge" [class.active]="service.status === 'active'"
+                        [class.inactive]="service.status === 'inactive'">
+                        {{ service.status }}
+                    </span>
+                </td>
+                <td>{{ service.features?.length || 0 }} features</td>
+                <td>
+                    <button class="btn btn-edit" (click)="openEditForm(service)">✏️ Edit</button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</div>

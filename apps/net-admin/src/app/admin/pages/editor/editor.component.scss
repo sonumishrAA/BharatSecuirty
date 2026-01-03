@@ -1,0 +1,228 @@
+@use '../../../../styles/variables' as *;
+
+.editor-page {
+    display: flex;
+    flex-direction: column;
+    gap: $space-md;
+}
+
+// ===== TOP BAR =====
+.editor-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: white;
+    border-bottom: 1px solid $admin-border;
+    padding: $space-md 0;
+    display: flex;
+    justify-content: space-between;
+
+    .left,
+    .right {
+        display: flex;
+        gap: $space-sm;
+    }
+}
+
+// ===== GRID =====
+.editor-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: $space-lg;
+}
+
+// ===== META PANEL =====
+.editor-meta {
+    display: flex;
+    flex-direction: column;
+    gap: $space-md;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xxs;
+
+    label {
+        font-size: $font-sm;
+        font-weight: 500;
+        color: $admin-muted;
+    }
+}
+
+input,
+textarea,
+select {
+    padding: $space-sm $space-sm;
+    border-radius: $radius-md;
+    border: 1px solid $admin-border;
+    font-size: $font-md;
+    width: 100%;
+
+    &:focus {
+        outline: none;
+        border-color: $admin-primary;
+    }
+}
+
+// ===== COVER =====
+.editor-cover {
+    width: 100%;
+    height: 180px;
+    border-radius: $radius-lg;
+    border: 1px dashed $admin-border;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    span {
+        color: $admin-muted;
+        font-size: $font-sm;
+    }
+}
+
+.cover-actions {
+    display: flex;
+    gap: $space-sm;
+    margin-top: $space-sm;
+}
+
+// ===== CANVAS WRAPPER =====
+.editor-canvas {
+    display: flex;
+    justify-content: center;
+    background: #f1f5f9; // Blogger gray background
+    padding: $space-xl;
+    border-radius: $radius-lg;
+    min-height: calc(100vh - 100px);
+}
+
+.editor-wrapper {
+    width: 100%;
+    max-width: 850px; // A4-ish width
+    background: white;
+    border-radius: $radius-md;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    // overflow: hidden; // Removed to allow dropdowns to show
+}
+
+// ===== TOOLBAR =====
+.ngx-toolbar-wrapper {
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 4px;
+    background: #f8fafc;
+
+    ::ng-deep .NgxEditor__MenuBar {
+        border: none;
+        background: transparent;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        .NgxEditor__MenuItem {
+            border-radius: 4px;
+
+            &:hover {
+                background: #e2e8f0;
+            }
+        }
+    }
+}
+
+.custom-image-btn {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+        background: #e2e8f0;
+    }
+}
+
+// ===== EDITOR CONTENT =====
+// We need to target the internal ngx-editor styles
+::ng-deep .NgxEditor {
+    border: none !important;
+    min-height: 600px;
+    padding: 40px 60px; // Paper padding!
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #334155;
+
+    p {
+        margin-bottom: 1.5em;
+    }
+
+    h1,
+    h2,
+    h3 {
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        font-weight: 700;
+    }
+
+    blockquote {
+        border-left: 4px solid $admin-primary;
+        padding-left: 16px;
+        color: #64748b;
+        font-style: italic;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: $breakpoint-lg) {
+    .editor-grid {
+        grid-template-columns: 1fr;
+
+        // Move meta to bottom? Or maybe stack it
+        .editor-meta {
+            height: auto;
+            order: 2;
+        }
+
+        .editor-canvas {
+            order: 1;
+            padding: 0;
+            background: transparent;
+        }
+
+        .editor-wrapper {
+            max-width: 100%;
+        }
+
+        ::ng-deep .NgxEditor {
+            padding: 20px;
+        }
+    }
+}

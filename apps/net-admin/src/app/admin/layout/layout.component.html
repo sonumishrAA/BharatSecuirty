@@ -1,0 +1,71 @@
+<div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <h3>Bharat Security Admin</h3>
+
+        <nav class="admin-nav">
+            <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a routerLink="/admin/bookings" routerLinkActive="active">
+                <span class="icon">📩</span>
+                <span>Inquiries</span>
+            </a>
+
+            <a routerLink="/admin/users" routerLinkActive="active">
+                <span class="icon">👥</span>
+                <span>Users</span>
+            </a>
+
+            <a routerLink="/admin/services" routerLinkActive="active">
+                <span class="icon">⚡️</span>
+                <span>Services</span>
+            </a>
+
+            <a routerLink="/admin/arsenal" routerLinkActive="active">
+                <span class="icon">🔧</span>
+                <span>Our Arsenal</span>
+            </a>
+
+            <a routerLink="/admin/stats" routerLinkActive="active">
+                <span class="icon">📈</span>
+                <span>Stats / Ratings</span>
+            </a>
+
+            <a routerLink="/admin/case-studies" routerLinkActive="active">
+                <span class="icon">📋</span>
+                <span>Case Studies</span>
+            </a>
+
+            <a routerLink="/admin/backend" routerLinkActive="active">
+                <span class="icon">⚙️</span>
+                <span>System Backend</span>
+            </a>
+
+            <!-- Blog Features (Hidden/Lower Priority) -->
+            <!--
+            <a routerLink="/admin/editor" routerLinkActive="active">
+                <span class="icon">📝</span>
+                <span>Blog Editor</span>
+            </a>
+            -->
+        </nav>
+
+        <!-- FOOTER -->
+        <div class="sidebar-footer">
+            <button class="danger" (click)="logout()">
+                <span class="icon">🚪</span>
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+        <div class="admin-page">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

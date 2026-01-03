@@ -1,0 +1,37 @@
+<header class="navbar" [class.scrolled]="scrolled()">
+    <div class="container nav-container">
+        <!-- LEFT -->
+        <a routerLink="/" class="nav-logo">BharatSecurity</a>
+
+        <!-- RIGHT -->
+        <div class="nav-right">
+            <button class="hamburger" [class.open]="open()" (click)="toggleMenu()" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav #navLinks class="nav-links" [class.show]="open()">
+                <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                    (click)="closeMenu()">
+                    Home
+                </a>
+                <a routerLink="/blog" routerLinkActive="active" (click)="closeMenu()">
+                    Blog
+                </a>
+                <a routerLink="/osint" routerLinkActive="active" (click)="closeMenu()">
+                    OSINT Guide
+                </a>
+                <a routerLink="/scam-alert" routerLinkActive="active" (click)="closeMenu()">
+                    Scam Alert
+                </a>
+                <a routerLink="/resources" routerLinkActive="active" (click)="closeMenu()">
+                    Resources
+                </a>
+                <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">
+                    About
+                </a>
+            </nav>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,94 @@
+@use '../../../../styles/variables' as *;
+
+.post-view {
+    padding: 80px 0 120px;
+
+    .container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+}
+
+.post-meta {
+    display: flex;
+    gap: $space-md;
+    font-size: $font-sm;
+    color: $public-text-muted;
+    margin-bottom: $space-md;
+}
+
+.post-category {
+    color: $public-neon-cyan;
+    text-transform: capitalize;
+}
+
+.post-title {
+    font-size: 38px;
+    line-height: 1.3;
+    margin-bottom: 28px;
+}
+
+// ===== CONTENT =====
+.post-content {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: $font-lg;
+    line-height: 1.8;
+
+    ::ng-deep {
+        p {
+            margin-bottom: 20px;
+        }
+
+        h2,
+        h3 {
+            margin: 36px 0 18px;
+            line-height: 1.4;
+        }
+
+        a {
+            color: $public-neon-cyan;
+            text-decoration: underline;
+        }
+
+        blockquote {
+            border-left: 4px solid $public-neon-cyan;
+            padding-left: $space-lg;
+            margin: $space-lg 0;
+            color: $public-text-muted;
+        }
+
+        ul,
+        ol {
+            margin: $space-lg 0;
+            padding-left: 24px;
+            list-style: disc;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: $radius-lg;
+        }
+
+        figure.post-image {
+            margin: 32px 0;
+
+            figcaption {
+                margin-top: $space-sm;
+                font-size: $font-sm;
+                color: $public-text-muted;
+                text-align: center;
+            }
+        }
+    }
+}
+
+@media (max-width: $breakpoint-md) {
+    .post-title {
+        font-size: 28px;
+    }
+
+    .post-content {
+        font-size: 15px;
+    }
+}

@@ -1,0 +1,54 @@
+@use '../../../../styles/variables' as *;
+
+h1 {
+    font-size: $font-2xl;
+    font-weight: 600;
+    margin-bottom: $space-xs;
+}
+
+.card {
+    background: white;
+    border: 1px solid $admin-border;
+    border-radius: $radius-lg;
+    padding: $space-lg;
+    margin-top: $space-lg;
+
+    h3 {
+        font-size: $font-lg;
+        margin-bottom: $space-md;
+
+        small {
+            color: $admin-muted;
+            font-weight: normal;
+        }
+    }
+}
+
+.category-list {
+    li {
+        display: flex;
+        justify-content: space-between;
+        padding: $space-sm 0;
+        border-bottom: 1px solid $admin-border;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+}
+
+.badge {
+    padding: $space-xxs $space-sm;
+    border-radius: $radius-full;
+    font-size: $font-xs;
+
+    &.published {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    &.draft {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+}

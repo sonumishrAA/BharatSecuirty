@@ -1,0 +1,90 @@
+@use '../../../styles/variables' as *;
+
+.login-wrap {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $admin-panel;
+}
+
+.login-card {
+    width: 360px;
+    background: white;
+    padding: $space-xl;
+    border-radius: $radius-lg;
+    border: 1px solid $admin-border;
+    box-shadow: $shadow-md;
+    display: flex;
+    flex-direction: column;
+    gap: $space-md;
+
+    h1 {
+        font-size: 22px;
+        margin-bottom: $space-xxs;
+    }
+
+    .muted {
+        font-size: $font-sm;
+        color: $admin-muted;
+    }
+
+    .error {
+        color: $admin-danger;
+        font-size: $font-sm;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xxs;
+
+    label {
+        font-size: $font-xs;
+        color: $admin-muted;
+    }
+
+    input {
+        width: 100%;
+        padding: $space-sm $space-sm;
+        border-radius: $radius-md;
+        border: 1px solid $admin-border;
+        font-size: $font-md;
+        background: white;
+
+        &:focus {
+            outline: none;
+            border-color: $admin-primary;
+        }
+    }
+}
+
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-xs;
+    padding: $space-sm $space-md;
+    border-radius: $radius-md;
+    border: 1px solid $admin-border;
+    background: white;
+    font-size: $font-md;
+    cursor: pointer;
+    transition: background $transition-fast, box-shadow $transition-fast;
+
+    &.primary {
+        background: $admin-primary;
+        color: white;
+        border-color: $admin-primary;
+
+        &:hover {
+            box-shadow: 0 4px 14px rgba($admin-primary, 0.25);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}

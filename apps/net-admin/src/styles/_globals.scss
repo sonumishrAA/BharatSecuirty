@@ -1,0 +1,107 @@
+// =====================================================
+// GLOBAL STYLES - Base Reset & Utilities
+// =====================================================
+@use 'variables' as *;
+
+// ===== RESET =====
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    font-family: $font-family;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// ===== IMAGES =====
+img {
+    max-width: 100%;
+    display: block;
+}
+
+// ===== FORMS =====
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    outline: none;
+    background: none;
+}
+
+button {
+    cursor: pointer;
+}
+
+// ===== LINKS =====
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+// ===== LISTS =====
+ul,
+ol {
+    list-style: none;
+}
+
+// ===== TABLES =====
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+// ===== UTILITY CLASSES =====
+.container {
+    max-width: $container-max-width;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: $container-padding;
+    padding-right: $container-padding;
+}
+
+.muted {
+    color: $admin-muted;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+// ===== HIDE SCROLLBAR =====
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+* {
+    scrollbar-width: none;
+}
+
+// ===== SELECTION =====
+::selection {
+    background: rgba($public-neon-cyan, 0.3);
+    color: #ffffff;
+}
+
+// ===== TAP HIGHLIGHT =====
+* {
+    -webkit-tap-highlight-color: transparent;
+}

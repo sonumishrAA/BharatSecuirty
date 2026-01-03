@@ -1,0 +1,25 @@
+<div class="arsenal-page">
+    <div class="page-header">
+        <h2>🔧 Our Arsenal</h2>
+        <p>Tools & Technologies used for security assessments</p>
+    </div>
+
+    <div class="info-banner">
+        ℹ️ This is a view-only display of our security tools. The data is hardcoded and displayed on the home page.
+    </div>
+
+    <div class="categories">
+        <div class="category-section" *ngFor="let category of categories">
+            <h3 class="category-title">{{ category }}</h3>
+            <div class="tools-grid">
+                <div class="tool-card" *ngFor="let tool of getToolsByCategory(category)">
+                    <span class="tool-icon">{{ tool.icon }}</span>
+                    <div class="tool-info">
+                        <h4>{{ tool.name }}</h4>
+                        <p>{{ tool.description }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

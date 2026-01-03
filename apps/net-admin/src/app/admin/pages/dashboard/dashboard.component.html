@@ -1,0 +1,54 @@
+<div class="dashboard">
+    <div class="header">
+        <h1>Dashboard</h1>
+        <p class="muted">Business Overview</p>
+    </div>
+
+    @if (loading()) {
+    <p class="muted">Loading stats...</p>
+    }
+
+    @if (!loading()) {
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total Inquiries</span>
+            <span class="stat-value">{{ bookings().length }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Active Services</span>
+            <span class="stat-value">{{ services().length }}</span>
+        </div>
+    </div>
+
+    <div class="recent-section">
+        <h3>Recent Inquiries</h3>
+        <div class="card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (booking of recentBookings; track booking.id) {
+                    <tr>
+                        <td>{{ formatDate(booking.created_at) }}</td>
+                        <td>{{ booking.contact_name }}</td>
+                        <td>{{ booking.service_title || 'General' }}</td>
+                        <td><span class="badge new">New</span></td>
+                    </tr>
+                    }
+                    @if (recentBookings.length === 0) {
+                    <tr>
+                        <td colspan="4" class="empty">No inquiries yet</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>

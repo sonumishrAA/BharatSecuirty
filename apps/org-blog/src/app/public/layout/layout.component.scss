@@ -1,0 +1,38 @@
+@use '../../../styles/variables' as *;
+
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: $public-text-main;
+
+    // Cyber gradient background
+    background: radial-gradient(800px circle at 20% 20%,
+            rgba($public-neon-cyan, 0.08),
+            transparent 40%),
+        radial-gradient(900px circle at 80% 60%,
+            rgba($public-neon-blue, 0.06),
+            transparent 45%),
+        linear-gradient(120deg, $public-bg-soft, $public-bg-main, $public-bg-soft);
+
+    background-size: 200% 200%;
+    animation: cyberFlow 22s ease-in-out infinite;
+}
+
+.app-main {
+    flex: 1;
+}
+
+@keyframes cyberFlow {
+    0% {
+        background-position: 0% 40%;
+    }
+
+    50% {
+        background-position: 100% 60%;
+    }
+
+    100% {
+        background-position: 0% 40%;
+    }
+}

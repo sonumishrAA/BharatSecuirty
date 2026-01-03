@@ -1,0 +1,92 @@
+<div class="stats-page">
+    <div class="page-header">
+        <h2>📊 Stats / Ratings</h2>
+        <p>Manage statistics displayed on the home page</p>
+        <button class="btn-primary" (click)="startCreate()" *ngIf="!isCreating">
+            + Add Stat
+        </button>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+    <!-- Loading -->
+    <div class="loading" *ngIf="loading">Loading stats...</div>
+
+    <!-- Create Form -->
+    <div class="stat-form" *ngIf="isCreating">
+        <h3>New Stat</h3>
+        <div class="form-row">
+            <label>Value</label>
+            <input type="number" [(ngModel)]="newStat.value" placeholder="250">
+        </div>
+        <div class="form-row">
+            <label>Suffix</label>
+            <input type="text" [(ngModel)]="newStat.suffix" placeholder="+ or % or h">
+        </div>
+        <div class="form-row">
+            <label>Label</label>
+            <input type="text" [(ngModel)]="newStat.label" placeholder="Security Audits">
+        </div>
+        <div class="form-row">
+            <label>Icon (emoji)</label>
+            <input type="text" [(ngModel)]="newStat.icon" placeholder="🛡️">
+        </div>
+        <div class="form-row">
+            <label>Sort Order</label>
+            <input type="number" [(ngModel)]="newStat.sort_order" placeholder="1">
+        </div>
+        <div class="form-actions">
+            <button class="btn-success" (click)="createStat()">Create</button>
+            <button class="btn-secondary" (click)="cancelCreate()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Stats Table -->
+    <table class="stats-table" *ngIf="stats.length > 0 && !loading">
+        <thead>
+            <tr>
+                <th>Icon</th>
+                <th>Value</th>
+                <th>Suffix</th>
+                <th>Label</th>
+                <th>Order</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let stat of stats">
+                <!-- View Mode -->
+                <ng-container *ngIf="editingStat?.id !== stat.id">
+                    <td class="icon-cell">{{ stat.icon }}</td>
+                    <td>{{ stat.value }}</td>
+                    <td>{{ stat.suffix }}</td>
+                    <td>{{ stat.label }}</td>
+                    <td>{{ stat.sort_order }}</td>
+                    <td class="actions-cell">
+                        <button class="btn-sm btn-edit" (click)="startEdit(stat)">Edit</button>
+                        <button class="btn-sm btn-danger" (click)="deleteStat(stat)">Delete</button>
+                    </td>
+                </ng-container>
+
+                <!-- Edit Mode -->
+                <ng-container *ngIf="editingStat?.id === stat.id">
+                    <td><input type="text" [(ngModel)]="editingStat!.icon" class="input-sm"></td>
+                    <td><input type="number" [(ngModel)]="editingStat!.value" class="input-sm"></td>
+                    <td><input type="text" [(ngModel)]="editingStat!.suffix" class="input-sm"></td>
+                    <td><input type="text" [(ngModel)]="editingStat!.label" class="input-sm"></td>
+                    <td><input type="number" [(ngModel)]="editingStat!.sort_order" class="input-sm"></td>
+                    <td class="actions-cell">
+                        <button class="btn-sm btn-success" (click)="saveStat()">Save</button>
+                        <button class="btn-sm btn-secondary" (click)="cancelEdit()">Cancel</button>
+                    </td>
+                </ng-container>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="stats.length === 0 && !loading && !isCreating">
+        <p>No stats yet. Click "Add Stat" to create one.</p>
+    </div>
+</div>

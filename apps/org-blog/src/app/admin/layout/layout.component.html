@@ -1,0 +1,43 @@
+<div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <h3>CMS</h3>
+
+        <nav class="admin-nav">
+            <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a routerLink="/admin/editor" routerLinkActive="active">
+                <span class="icon">📝</span>
+                <span>Editor</span>
+            </a>
+
+            <a routerLink="/admin/categories" routerLinkActive="active">
+                <span class="icon">📁</span>
+                <span>Categories</span>
+            </a>
+
+            <a routerLink="/admin/media" routerLinkActive="active">
+                <span class="icon">🖼</span>
+                <span>Media</span>
+            </a>
+        </nav>
+
+        <!-- FOOTER -->
+        <div class="sidebar-footer">
+            <button class="danger" (click)="logout()">
+                <span class="icon">🚪</span>
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+        <div class="admin-page">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

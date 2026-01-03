@@ -1,0 +1,28 @@
+<div>
+    <h1>Categories</h1>
+    <p class="muted">Posts grouped by category</p>
+
+    @if (loading()) {
+    <p class="muted">Loading…</p>
+    }
+
+    @for (cat of getCategoryKeys(); track cat) {
+    <div class="card">
+        <h3>
+            {{ cat }} <small>({{ groups()[cat].length }})</small>
+        </h3>
+
+        <ul class="category-list">
+            @for (post of groups()[cat]; track post.id) {
+            <li>
+                <span>{{ post.title }}</span>
+                <span class="badge" [class.published]="post.status === 'published'"
+                    [class.draft]="post.status === 'draft'">
+                    {{ post.status }}
+                </span>
+            </li>
+            }
+        </ul>
+    </div>
+    }
+</div>

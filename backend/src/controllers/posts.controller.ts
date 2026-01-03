@@ -1,0 +1,223 @@
+import { Request, Response } from 'express';
+import { postsService } from '../services/posts.service.js';
+import type { CreatePostDto, UpdatePostDto, PostQueryParams } from '../models/Post.js';
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
+
+/**
+ * Helper to attach full URL to a post
+ */
+const attachUrl = (post: any) => ({
+    ...post,
+    url: `${FRONTEND_URL}/blog/${post.slug}`
+});
+
+/**
+ * Posts Controller
+ * Handles all post-related endpoints
+ */
+export class PostsController {
+    /**
+     * GET /api/posts
+     */
+    async getAll(req: Request, res: Response): Promise<void> {
+        try {
+            const params: PostQueryParams = {
+                status: req.query.status as any,
+                category: req.query.category as any,
+                limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+                offset: req.query.offset ? parseInt(req.query.offset as string) : undefined,
+                orderBy: req.query.orderBy as any,
+                order: req.query.order as any,
+            };
+
+            const posts = await postsService.getAll(params);
+            const postsWithUrl = posts.map(attachUrl);
+            res.json(postsWithUrl);
+        } catch (error) {
+            console.error('Get posts error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to fetch posts',
+            });
+        }
+    }
+
+    /**
+     * GET /api/posts/:id
+     */
+    async getById(req: Request, res: Response): Promise<void> {
+        try {
+            const post = await postsService.getById(req.params.id);
+
+            if (!post) {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+
+            res.json(attachUrl(post));
+        } catch (error) {
+            console.error('Get post error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to fetch post',
+            });
+        }
+    }
+
+    /**
+     * GET /api/posts/slug/:slug
+     */
+    async getBySlug(req: Request, res: Response): Promise<void> {
+        try {
+            const post = await postsService.getBySlug(req.params.slug);
+
+            if (!post) {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+
+            res.json(attachUrl(post));
+        } catch (error) {
+            console.error('Get post by slug error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to fetch post',
+            });
+        }
+    }
+
+    /**
+     * POST /api/posts
+     */
+    async create(req: Request, res: Response): Promise<void> {
+        try {
+            const dto: CreatePostDto = req.body;
+
+            if (!dto.title || !dto.slug || !dto.excerpt || !dto.category) {
+                res.status(400).json({
+                    error: 'Bad Request',
+                    message: 'Title, slug, excerpt, and category are required',
+                });
+                return;
+            }
+
+            const post = await postsService.create(dto);
+            res.status(201).json(attachUrl(post));
+        } catch (error) {
+            console.error('Create post error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to create post',
+            });
+        }
+    }
+
+    /**
+     * PUT /api/posts/:id
+     */
+    async update(req: Request, res: Response): Promise<void> {
+        try {
+            const dto: UpdatePostDto = req.body;
+            const post = await postsService.update(req.params.id, dto);
+
+            if (!post) {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+
+            res.json(attachUrl(post));
+        } catch (error) {
+            console.error('Update post error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to update post',
+            });
+        }
+    }
+
+    /**
+     * DELETE /api/posts/:id
+     */
+    async delete(req: Request, res: Response): Promise<void> {
+        try {
+            const deleted = await postsService.delete(req.params.id);
+
+            if (!deleted) {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+
+            res.json({ message: 'Post deleted successfully' });
+        } catch (error) {
+            console.error('Delete post error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to delete post',
+            });
+        }
+    }
+
+    /**
+     * PATCH /api/posts/:id/status
+     */
+    async toggleStatus(req: Request, res: Response): Promise<void> {
+        try {
+            const post = await postsService.toggleStatus(req.params.id);
+
+            if (!post) {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+
+            res.json(attachUrl(post));
+        } catch (error) {
+            console.error('Toggle status error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to toggle status',
+            });
+        }
+    }
+
+    /**
+     * GET /api/posts/categories/grouped
+     */
+    async getGroupedByCategory(req: Request, res: Response): Promise<void> {
+        try {
+            const grouped = await postsService.getGroupedByCategory();
+
+            // Allow dynamic typing for the mapped object
+            const groupedWithUrl: Record<string, any[]> = {};
+
+            for (const [category, posts] of Object.entries(grouped)) {
+                groupedWithUrl[category] = posts.map(attachUrl);
+            }
+
+            res.json(groupedWithUrl);
+        } catch (error) {
+            console.error('Get grouped posts error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to fetch grouped posts',
+            });
+        }
+    }
+}
+
+export const postsController = new PostsController();

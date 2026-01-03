@@ -1,0 +1,142 @@
+<div class="page-header">
+    <h2>Inquiries / Bookings</h2>
+    <div class="actions">
+        <button class="btn btn-secondary" (click)="exportCSV()">
+            📥 Export CSV
+        </button>
+        <button class="btn btn-primary" (click)="loadBookings()">
+            ↻ Refresh
+        </button>
+    </div>
+</div>
+
+<!-- Bulk Actions Bar -->
+@if (selectedCount > 0) {
+<div class="bulk-actions">
+    <span class="selection-count">{{ selectedCount }} selected</span>
+    <button class="btn btn-danger" (click)="bulkDelete()">🗑 Delete Selected</button>
+</div>
+}
+
+<!-- Booking Details Modal -->
+@if (selectedBooking) {
+<div class="modal-overlay" (click)="closeDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Booking Details</h3>
+            <button class="btn-close" (click)="closeDetails()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Date</label>
+                    <span>{{ formatDate(selectedBooking.created_at) }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Status</label>
+                    <span class="badge" [class]="selectedBooking.status">{{ selectedBooking.status || 'pending'
+                        }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Name</label>
+                    <span>{{ selectedBooking.contact_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Email</label>
+                    <a [href]="'mailto:' + selectedBooking.contact_email">{{ selectedBooking.contact_email }}</a>
+                </div>
+                <div class="detail-item">
+                    <label>Company</label>
+                    <span>{{ selectedBooking.company || '-' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Phone</label>
+                    <span>{{ selectedBooking.phone || '-' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Service Type</label>
+                    <span class="badge service">{{ selectedBooking.service_type || selectedBooking.service_title ||
+                        'General' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Temp Password</label>
+                    <code>{{ selectedBooking.temp_password || 'N/A' }}</code>
+                </div>
+                <div class="detail-item full-width">
+                    <label>Message</label>
+                    <p class="message-text">{{ selectedBooking.message }}</p>
+                </div>
+                <div class="detail-item full-width" *ngIf="selectedBooking.additional_info">
+                    <label>Additional Info</label>
+                    <p class="message-text">{{ selectedBooking.additional_info }}</p>
+                </div>
+                <div class="detail-item" *ngIf="selectedBooking.attachment_url">
+                    <label>Attachment</label>
+                    <a [href]="selectedBooking.attachment_url" target="_blank" class="download-link">📎 Download
+                        File</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<div class="card">
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-col">
+                        <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
+                    </th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Service</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let booking of bookings" [class.selected]="isSelected(booking.id)">
+                    <td class="checkbox-col">
+                        <input type="checkbox" [checked]="isSelected(booking.id)"
+                            (change)="toggleSelection(booking.id)">
+                    </td>
+                    <td class="nowrap">{{ formatDate(booking.created_at) }}</td>
+                    <td>
+                        <div class="user-info">
+                            <span class="name">{{ booking.contact_name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ booking.company || '-' }}</td>
+                    <td>
+                        <span class="badge service">{{ booking.service_type || booking.service_title || 'General'
+                            }}</span>
+                    </td>
+                    <td>
+                        <a [href]="'mailto:' + booking.contact_email">{{ booking.contact_email }}</a>
+                    </td>
+                    <td>
+                        <span class="badge" [class]="booking.status">{{ booking.status || 'pending' }}</span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn btn-view" (click)="viewDetails(booking)">👁</button>
+                        <button class="btn btn-delete" (click)="deleteBooking(booking.id)">🗑</button>
+                    </td>
+                </tr>
+                <tr *ngIf="bookings.length === 0 && !isLoading">
+                    <td colspan="8" class="empty-state">
+                        No inquiries found.
+                    </td>
+                </tr>
+                <tr *ngIf="isLoading">
+                    <td colspan="8" class="loading-state">
+                        Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

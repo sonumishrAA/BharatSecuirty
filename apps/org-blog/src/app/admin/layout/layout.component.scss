@@ -1,0 +1,134 @@
+@use '../../../styles/variables' as *;
+
+.admin-layout {
+    display: flex;
+    height: 100vh;
+    background: $admin-bg;
+    color: $admin-text;
+}
+
+// ===== SIDEBAR =====
+.admin-sidebar {
+    width: 240px;
+    background: $admin-panel;
+    border-right: 1px solid $admin-border;
+    padding: $space-lg;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+
+    h3 {
+        font-size: 18px;
+        margin-bottom: $space-lg;
+        font-weight: 600;
+    }
+}
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xs;
+
+    a {
+        padding: $space-sm $space-md;
+        border-radius: $radius-md;
+        font-size: $font-md;
+        color: $admin-text;
+        display: flex;
+        align-items: center;
+        gap: $space-sm;
+        transition: background $transition-fast, transform $transition-fast;
+
+        &:hover {
+            background: #e2e8f0;
+            transform: translateX(2px);
+        }
+
+        &.active {
+            background: $admin-primary;
+            color: white;
+        }
+
+        .icon {
+            font-size: 16px;
+        }
+    }
+}
+
+.sidebar-footer {
+    margin-top: auto;
+}
+
+// ===== MAIN =====
+.admin-main {
+    flex: 1;
+    padding: $space-xl;
+    overflow-y: auto;
+}
+
+.admin-page {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+// ===== BUTTONS =====
+button {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-xs;
+    padding: $space-sm $space-md;
+    border-radius: $radius-md;
+    border: 1px solid $admin-border;
+    background: white;
+    font-size: $font-md;
+    cursor: pointer;
+    transition: background $transition-fast, box-shadow $transition-fast;
+
+    &:hover {
+        background: #f8fafc;
+    }
+
+    &.primary {
+        background: $admin-primary;
+        color: white;
+        border-color: $admin-primary;
+
+        &:hover {
+            box-shadow: 0 4px 14px rgba($admin-primary, 0.25);
+        }
+    }
+
+    &.danger {
+        color: $admin-danger;
+        border-color: transparent;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: $breakpoint-lg) {
+    .admin-sidebar {
+        width: 200px;
+    }
+}
+
+@media (max-width: $breakpoint-md) {
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid $admin-border;
+    }
+
+    .admin-main {
+        height: auto;
+    }
+}

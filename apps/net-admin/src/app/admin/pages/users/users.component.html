@@ -1,0 +1,61 @@
+<div class="page-header">
+    <h2>👥 Client Users</h2>
+    <div class="search-box">
+        <input type="text" [(ngModel)]="searchQuery" (input)="filterUsers()"
+            placeholder="🔍 Search by name, email, company...">
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>👤 User</th>
+                    <th>🏢 Company</th>
+                    <th>📞 Phone</th>
+                    <th>📋 Bookings</th>
+                    <th>📅 Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (user of filteredUsers; track user.id) {
+                <tr (click)="viewUser(user.id)" class="clickable-row">
+                    <td>
+                        <div class="user-info">
+                            <span class="avatar">{{ (user.name || user.email)[0].toUpperCase() }}</span>
+                            <div>
+                                <span class="name">{{ user.name || 'No Name' }}</span>
+                                <span class="email">{{ user.email }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ user.company || '-' }}</td>
+                    <td>{{ user.phone || '-' }}</td>
+                    <td><span class="badge count">{{ user.booking_count }}</span></td>
+                    <td>{{ formatDate(user.created_at) }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon btn-edit" (click)="editUser(user.id); $event.stopPropagation()"
+                                title="Edit User">✏️</button>
+                            <button class="btn-icon btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()"
+                                title="Delete User">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                }
+                @if (filteredUsers.length === 0 && !isLoading) {
+                <tr>
+                    <td colspan="6" class="empty-state">No users found</td>
+                </tr>
+                }
+                @if (isLoading) {
+                <tr>
+                    <td colspan="6" class="loading-state">Loading...</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

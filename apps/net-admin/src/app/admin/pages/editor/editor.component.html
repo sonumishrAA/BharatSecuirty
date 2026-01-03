@@ -1,0 +1,110 @@
+<div class="editor-page">
+    <!-- TOP BAR -->
+    <div class="editor-topbar">
+        <div class="left">
+            <button (click)="router.navigate(['/admin'])">← Back</button>
+        </div>
+
+        <div class="right">
+            <button class="primary" (click)="savePost()" [disabled]="saving()">
+                {{ saving() ? 'Saving…' : (isEdit() ? 'Update' : 'Save') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="editor-grid">
+        <!-- META PANEL -->
+        <aside class="editor-meta">
+            <div class="group">
+                <label>Title</label>
+                <input [(ngModel)]="title" (ngModelChange)="autoSlug(); markDirty()"
+                    placeholder="Enter post title..." />
+            </div>
+
+            <div class="group">
+                <label>Short Description</label>
+                <textarea rows="3" [(ngModel)]="shortDesc" (ngModelChange)="markDirty()"
+                    placeholder="Brief summary for cards..."></textarea>
+            </div>
+
+            <div class="group">
+                <label>Slug</label>
+                <input [(ngModel)]="slug" (ngModelChange)="markDirty()" />
+            </div>
+
+            <div class="group">
+                <label>Category</label>
+                <select [(ngModel)]="category" (ngModelChange)="markDirty()">
+                    @for (cat of categories; track cat) {
+                    <option [value]="cat">{{ cat.replace('_', ' ') | titlecase }}</option>
+                    }
+                </select>
+            </div>
+
+            <!-- COVER IMAGE -->
+            <div class="group">
+                <label>Cover Image</label>
+                <input type="file" accept="image/*" (change)="onCoverUpload($event)" #coverInput hidden />
+
+                <div class="editor-cover">
+                    @if (cover) {
+                    <img [src]="cover" alt="Cover" />
+                    } @else {
+                    <span>Upload cover image</span>
+                    }
+                </div>
+
+                <div class="cover-actions">
+                    @if (!cover) {
+                    <button (click)="coverInput.click()">📤 Upload</button>
+                    } @else {
+                    <button (click)="coverInput.click()">🔄 Replace</button>
+                    <button class="danger" (click)="removeCover()">🗑️ Remove</button>
+                    }
+                </div>
+            </div>
+
+            <div class="group">
+                <label>Meta Title</label>
+                <input [(ngModel)]="metaTitle" (ngModelChange)="markDirty()" />
+            </div>
+
+            <div class="group">
+                <label>Meta Description</label>
+                <textarea rows="2" [(ngModel)]="metaDesc" (ngModelChange)="markDirty()"></textarea>
+            </div>
+
+            <div class="group">
+                <label>Status</label>
+                <select [(ngModel)]="status" (ngModelChange)="markDirty()">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- CANVAS -->
+        <section class="editor-canvas">
+            <div class="editor-wrapper">
+                <div class="ngx-toolbar-wrapper">
+                    <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+
+                    <button class="custom-image-btn" (click)="triggerEditorImageUpload()" title="Upload & Insert Image">
+                        🖼️ Upload Image
+                    </button>
+                    <input type="file" accept="image/*" (change)="onEditorImageUpload($event)" #editorImageInput
+                        hidden />
+                </div>
+
+                <ngx-editor [editor]="editor" [(ngModel)]="content" (ngModelChange)="markDirty()"
+                    [placeholder]="'Write your story...'" class="ngx-editor-canvas"></ngx-editor>
+            </div>
+        </section>
+    </div>
+</div>
+
+@if (showCropper) {
+<app-image-cropper-modal [imageChangedEvent]="imageEvent" [aspectRatio]="16/9" (cropConfirm)="onCropConfirm($event)"
+    (cropCancel)="onCropCancel()"></app-image-cropper-modal>
+}

@@ -1,0 +1,47 @@
+<div class="home">
+    <!-- HERO -->
+    <section class="home-hero hero-dual">
+        <div class="container hero-grid">
+            <!-- LEFT CONTENT -->
+            <div class="hero-left">
+                <span class="hero-line"></span>
+
+                <div>
+                    <h1>Bharat<span>Security</span></h1>
+                    <p class="hero-sub">
+                        Cyber awareness, OSINT intelligence & scam protection
+                    </p>
+
+                    <div class="hero-icons-row">
+                        <span>🛡️ Cyber Safety</span>
+                        <span>🔍 OSINT</span>
+                        <span>⚠️ Scam Alerts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT VISUAL -->
+            <div class="hero-right">
+                <div class="hero-card">
+                    <span>🛡️</span>
+                    <span>Protect</span>
+                </div>
+
+                <div class="hero-card">
+                    <span>🔍</span>
+                    <span>Investigate</span>
+                </div>
+
+                <div class="hero-card">
+                    <span>⚠️</span>
+                    <span>Detect</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTIONS -->
+    @for (sec of sections; track sec.type) {
+    <app-horizontal-section [title]="sec.title" [type]="sec.type"></app-horizontal-section>
+    }
+</div>

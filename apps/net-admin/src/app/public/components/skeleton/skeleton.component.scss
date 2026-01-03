@@ -1,0 +1,49 @@
+@use '../../../../styles/variables' as *;
+
+.skeleton-card {
+    pointer-events: none;
+}
+
+.skeleton-image,
+.skeleton-line {
+    background: linear-gradient(90deg,
+            rgba($public-border-soft, 0.35) 25%,
+            rgba(30, 41, 59, 0.6) 37%,
+            rgba($public-border-soft, 0.35) 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.skeleton-body {
+    padding: $space-lg;
+}
+
+.skeleton-line {
+    height: 12px;
+    border-radius: $radius-sm;
+    margin-bottom: $space-sm;
+
+    &.title {
+        height: 16px;
+        width: 80%;
+    }
+
+    &.short {
+        width: 50%;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}

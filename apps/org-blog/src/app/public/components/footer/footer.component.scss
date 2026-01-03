@@ -1,0 +1,67 @@
+@use '../../../../styles/variables' as *;
+
+.footer {
+    background: transparent;
+    border-top: 1px solid rgba(white, 0.06);
+    padding: 90px 0 30px;
+}
+
+.footer-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+}
+
+.footer-brand {
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: $space-md;
+        color: $public-neon-cyan;
+    }
+
+    p {
+        color: $public-text-muted;
+        max-width: 420px;
+        line-height: 1.6;
+    }
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+
+    h4 {
+        font-size: $font-md;
+        margin-bottom: $space-md;
+        color: $public-text-main;
+    }
+
+    a {
+        display: block;
+        margin-bottom: $space-sm;
+        font-size: $font-md;
+        color: $public-text-muted;
+        transition: color $transition-fast;
+
+        &:hover {
+            color: $public-neon-cyan;
+        }
+    }
+}
+
+.footer-bottom {
+    margin-top: 60px;
+    padding-top: $space-lg;
+    border-top: 1px solid rgba(white, 0.05);
+    text-align: center;
+    font-size: $font-sm;
+    color: $public-text-muted;
+}
+
+@media (max-width: $breakpoint-md) {
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+}

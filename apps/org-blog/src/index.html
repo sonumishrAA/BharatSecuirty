@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>BharatSecurity CMS</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cyber awareness, OSINT intelligence & scam protection">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main Loader Styles -->
+  <style>
+    .app-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      z-index: 99999;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .loader-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(34, 211, 238, 0.2);
+      border-top-color: #22d3ee;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loader-text {
+      margin-top: 20px;
+      color: #94a3b8;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .loader-logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 30px;
+    }
+
+    .loader-logo span {
+      color: #22d3ee;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <app-root>
+    <!-- Main Loader - Shown while Angular loads -->
+    <div class="app-loader">
+      <div class="loader-logo">Bharat<span>Security</span></div>
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Loading...</div>
+    </div>
+  </app-root>
+</body>
+
+</html>

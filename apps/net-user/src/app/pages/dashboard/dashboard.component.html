@@ -1,0 +1,170 @@
+<div class="dashboard">
+    <header>
+        <div class="brand">
+            <h1>🛡️ Bharat Security</h1>
+            <span>Client Portal</span>
+        </div>
+
+        <div class="user-profile">
+            <div class="profile-info">
+                <div class="avatar">
+                    {{ user?.email?.charAt(0)?.toUpperCase() || 'U' }}
+                </div>
+                <div class="user-details">
+                    <span class="user-role">Client Account</span>
+                    <span class="user-email">{{ user?.email }}</span>
+                </div>
+            </div>
+            <button class="logout-btn" (click)="logout()" title="Logout">
+                <span class="icon">⏻</span>
+                <span class="text">Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="welcome">
+            <h2>Welcome back!</h2>
+            <p>Track the status of your security assessments below.</p>
+        </div>
+
+        @if (isLoading) {
+        <div class="loading">Loading your requests...</div>
+        }
+
+        @if (!isLoading && bookings.length === 0) {
+        <div class="empty-state">
+            <p>You have no active security requests.</p>
+        </div>
+        }
+
+        <div class="dashboard-grid">
+            <!-- Bookings List -->
+            <div class="panel bookings-panel">
+                <h3>📦 Your Requests</h3>
+                @for (booking of bookings; track booking.id) {
+                <div class="booking-card" [class.active]="selectedBooking?.id === booking.id"
+                    (click)="selectBooking(booking)">
+                    <div class="booking-header">
+                        <span class="service-icon">🛡️</span>
+                        <div class="booking-info">
+                            <strong>{{ booking.service_type || booking.service_title || 'Security Assessment'
+                                }}</strong>
+                            <span class="date">{{ formatDate(booking.created_at) }}</span>
+                        </div>
+                        <span class="status-badge" [class]="booking.status">{{ getStatusIcon(booking.status) }}</span>
+                    </div>
+
+                    @if (booking.progress && booking.progress > 0) {
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="booking.progress"></div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+
+            <!-- Booking Details -->
+            @if (selectedBooking) {
+            <div class="panel detail-panel">
+                <h3>📋 {{ selectedBooking.service_type || 'Request Details' }}</h3>
+
+                <div class="detail-section">
+                    <div class="status-row">
+                        <span>Status:</span>
+                        <span class="status-badge large" [class]="selectedBooking.status">
+                            {{ getStatusIcon(selectedBooking.status) }} {{ selectedBooking.status }}
+                        </span>
+                    </div>
+
+                    @if (selectedBooking.progress) {
+                    <div class="progress-row">
+                        <span>Progress:</span>
+                        <div class="progress-large">
+                            <div class="progress-fill" [style.width.%]="selectedBooking.progress"></div>
+                            <span>{{ selectedBooking.progress }}%</span>
+                        </div>
+                    </div>
+                    }
+
+                    @if (selectedBooking.admin_notes) {
+                    <div class="admin-notes">
+                        <strong>📝 Latest Update:</strong>
+                        <p>{{ selectedBooking.admin_notes }}</p>
+                    </div>
+                    }
+                </div>
+
+                <!-- Status Timeline -->
+                <div class="timeline-section">
+                    <h4>📜 Status Timeline</h4>
+                    @if (statusHistory.length === 0) {
+                    <p class="text-muted">No updates yet</p>
+                    }
+                    <div class="timeline">
+                        @for (entry of statusHistory; track entry.id) {
+                        <div class="timeline-item">
+                            <div class="timeline-icon">{{ getStatusIcon(entry.new_status) }}</div>
+                            <div class="timeline-content">
+                                <span class="status-change">{{ entry.old_status || 'Created' }} → {{ entry.new_status
+                                    }}</span>
+                                <span class="timeline-date">{{ formatDateTime(entry.created_at) }}</span>
+                                @if (entry.notes) {
+                                <p class="timeline-notes">{{ entry.notes }}</p>
+                                }
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Panel -->
+            <div class="panel chat-panel">
+                <h3>💬 Chat with Support</h3>
+                <div class="chat-messages">
+                    @for (msg of messages; track msg.id) {
+                    <div class="message" [class.admin]="msg.sender_role === 'admin'"
+                        [class.user]="msg.sender_role === 'user'">
+                        <div class="message-header">
+                            <span class="sender">{{ msg.sender_role === 'admin' ? '👨‍💼 Support' : '👤 You' }}</span>
+                            <span class="time">{{ formatDateTime(msg.created_at) }}</span>
+                        </div>
+                        <div class="message-content">
+                            {{ msg.content }}
+                            @if (msg.attachment_url) {
+                            <div class="attachment-link" style="margin-top: 5px;">
+                                <a [href]="getAttachmentUrl(msg.attachment_url)" target="_blank"
+                                    style="color: #2563eb; text-decoration: underline; font-size: 0.9em;">
+                                    📎 View Attachment
+                                </a>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                    @if (messages.length === 0) {
+                    <p class="text-muted">No messages yet. Start the conversation!</p>
+                    }
+                </div>
+                <div class="chat-input-area">
+                    <div class="file-upload">
+                        <input type="file" (change)="onFileSelected($event)" id="file-upload-client" class="file-input">
+                    </div>
+                    <div class="text-input">
+                        <textarea [(ngModel)]="chatMessage" placeholder="Type your message..." rows="2"></textarea>
+                        <button (click)="sendMessage()" [disabled]="!chatMessage.trim() && !selectedFile">Send
+                            📤</button>
+                    </div>
+                    @if (selectedFile) {
+                    <div class="selected-file">
+                        📎 {{ selectedFile.name }}
+                        <span (click)="selectedFile = null" style="cursor: pointer; color: red;">✖</span>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </main>
+</div>

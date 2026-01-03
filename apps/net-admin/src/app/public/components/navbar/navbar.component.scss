@@ -1,0 +1,119 @@
+@use '../../../../styles/variables' as *;
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba($public-bg-soft, 0.15);
+    backdrop-filter: blur(14px);
+    transition: background $transition-slow, box-shadow $transition-slow;
+    border-bottom: 1px solid rgba(white, 0.04);
+
+    &.scrolled {
+        background: rgba($public-bg-soft, 0.35);
+        box-shadow: 0 1px 0 rgba($public-neon-cyan, 0.08);
+    }
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-md $space-md; // Added horizontal padding for mobile logo
+}
+
+.nav-logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: $public-neon-cyan;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: $space-lg;
+}
+
+// ===== LINKS =====
+.nav-links {
+    display: flex;
+    gap: 22px;
+
+    a {
+        font-size: $font-md;
+        opacity: 0.75;
+        color: $public-text-main;
+        transition: opacity $transition-fast, color $transition-fast;
+
+        &:hover {
+            opacity: 1;
+            color: $public-neon-cyan;
+        }
+
+        &.active {
+            opacity: 1;
+            color: $public-neon-cyan;
+            border-bottom: 2px solid $public-neon-cyan;
+            padding-bottom: 2px;
+        }
+    }
+}
+
+// ===== HAMBURGER =====
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    span {
+        width: 24px;
+        height: 2px;
+        background: $public-text-main;
+        transition: all $transition-normal;
+    }
+
+    &.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    &.open span:nth-child(2) {
+        opacity: 0;
+    }
+
+    &.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+// ===== MOBILE =====
+@media (max-width: $breakpoint-md) {
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: $public-bg-soft; // Solid background (removed transparency)
+        backdrop-filter: blur(16px);
+        flex-direction: column;
+        gap: 0;
+        display: none;
+        border-top: 1px solid rgba(white, 0.05);
+
+        &.show {
+            display: flex;
+        }
+
+        a {
+            padding: $space-md $space-lg;
+            border-top: 1px solid rgba(white, 0.05);
+        }
+    }
+}

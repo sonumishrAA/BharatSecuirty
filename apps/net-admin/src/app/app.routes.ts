@@ -1,0 +1,28 @@
+import { Routes } from '@angular/router';
+import { authGuard, adminGuard, guestGuard } from './core/guards/auth.guard';
+
+export const routes: Routes = [
+    // ===== PUBLIC ROUTES =====
+    // ===== PUBLIC ROUTES REMOVED =====
+    // This app is Admin only.
+
+    // ===== AUTH ROUTES =====
+    {
+        path: 'login',
+        canActivate: [guestGuard],
+        loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
+    },
+
+    // ===== ADMIN ROUTES =====
+    {
+        path: 'admin',
+        canActivate: [authGuard, adminGuard],
+        loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+    },
+
+    // ===== FALLBACK =====
+    {
+        path: '**',
+        redirectTo: 'login'
+    }
+];

@@ -1,0 +1,25 @@
+<article class="post-view">
+    <div class="container">
+        @if (loading()) {
+        <p>Loading…</p>
+        }
+
+        @if (!loading() && post()) {
+        <!-- META -->
+        <div class="post-meta">
+            <span class="post-date">{{ post()!.created_at | date:'mediumDate' }}</span>
+            <span class="post-category">{{ post()!.category }}</span>
+        </div>
+
+        <!-- TITLE -->
+        <h1 class="post-title">{{ post()!.title }}</h1>
+
+        <!-- CONTENT -->
+        <div class="post-content" [innerHTML]="renderContent()"></div>
+        }
+
+        @if (!loading() && !post()) {
+        <p>Post not found</p>
+        }
+    </div>
+</article>

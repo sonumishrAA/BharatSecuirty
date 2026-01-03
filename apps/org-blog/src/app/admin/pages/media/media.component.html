@@ -1,0 +1,55 @@
+<div>
+    <h1>Media Library</h1>
+    <p class="muted">All uploaded media (auto detected)</p>
+
+    @if (loading()) {
+    <p class="muted">Loading…</p>
+    }
+
+    <!-- COVER IMAGES -->
+    <div class="section">
+        <h3>🖼 Cover Images</h3>
+
+        @if (media().covers.length === 0) {
+        <p class="muted">No items available</p>
+        }
+
+        <div class="media-grid">
+            @for (file of media().covers; track file.name) {
+            <div class="media-card">
+                <div class="media-thumb">
+                    <img [src]="file.url" alt="" />
+                </div>
+                <div class="media-actions">
+                    <button (click)="copyUrl(file.url)">📋</button>
+                    <button class="danger" (click)="deleteFile(file.name, 'covers')">🗑️</button>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- FILES -->
+    <div class="section">
+        <h3>📎 Files / PDFs</h3>
+
+        @if (media().files.length === 0) {
+        <p class="muted">No items available</p>
+        }
+
+        <div class="media-grid">
+            @for (file of media().files; track file.name) {
+            <div class="media-card">
+                <div class="media-thumb file">
+                    <span>📄</span>
+                    <small>{{ file.name }}</small>
+                </div>
+                <div class="media-actions">
+                    <button (click)="copyUrl(file.url)">📋</button>
+                    <button class="danger" (click)="deleteFile(file.name, 'files')">🗑️</button>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
