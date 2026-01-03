@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: '/api'
+    apiUrl: 'https://bharatsecuirty-iqq6.onrender.com/api'
 };
