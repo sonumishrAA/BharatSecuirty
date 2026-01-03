@@ -7,7 +7,8 @@
         "dev": "tsx watch src/app.ts",
         "build": "tsc",
         "start": "node dist/app.js",
-        "migrate": "tsx src/migrations/run.ts"
+        "migrate": "node dist/scripts/run-migrations.js",
+        "migrate:dev": "tsx src/scripts/run-migrations.ts"
     },
     "dependencies": {
         "axios": "^1.13.2",
