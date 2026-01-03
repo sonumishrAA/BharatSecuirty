@@ -28,16 +28,23 @@ const PORT = process.env.PORT || 3000;
  */
 const defaultOrigins = [
     process.env.FRONTEND_URL || 'http://localhost:4200',
-    'http://localhost:4204', // org-blog
-    'http://localhost:4203', // org-blog app
-    'http://localhost:4201', // admin panel
-    'http://localhost:4202', // client portal (net-user)
+    'http://localhost:4204',
+    'http://localhost:4203',
+    'http://localhost:4201',
+    'http://localhost:4202',
     'http://localhost:50629',
-    'http://127.0.0.1:5500', // Common implementation for Live Server
-    'http://localhost:5500'
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+    // Hardcoded Production Origins (Netlify)
+    'https://bs-net-admin.netlify.app',
+    'https://bs-net-buisness.netlify.app',
+    'https://bs-net-user.netlify.app',
+    'https://bs-org-blog.netlify.app'
 ];
 
-const envOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : [];
+const envOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
+    : [];
 
 app.use(cors({
     origin: [...defaultOrigins, ...envOrigins],
