@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface CaseStudy {
     id: string;
@@ -35,7 +36,7 @@ export class CaseStudiesComponent implements OnInit {
     loading = false;
     error = '';
 
-    private apiUrl = 'http://localhost:3000/api/business';
+    private apiUrl = `${environment.apiUrl}/business`;
 
     constructor(private http: HttpClient) { }
 

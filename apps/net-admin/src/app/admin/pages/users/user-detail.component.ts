@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
+import { environment } from '../../../../environments/environment';
 
 interface StatusHistory {
     id: string;
@@ -258,7 +259,8 @@ export class UserDetailComponent implements OnInit {
 
     getAttachmentUrl(path: string): string {
         if (!path) return '';
-        return `http://localhost:3000${path}`;
+        const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+        return `${baseUrl}${path}`;
     }
 
     getStatusIcon(status: string): string {

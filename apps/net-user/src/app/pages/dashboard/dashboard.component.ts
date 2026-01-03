@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ClientService, Booking } from '../../core/services/client.service';
+import { environment } from '../../../environments/environment';
 
 interface Message {
     id: string;
@@ -107,7 +108,8 @@ export class DashboardComponent implements OnInit {
 
     getAttachmentUrl(path: string): string {
         if (!path) return '';
-        return `http://localhost:3000${path}`;
+        const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+        return `${baseUrl}${path}`;
     }
 
     loadHistory(bookingId: string) {
