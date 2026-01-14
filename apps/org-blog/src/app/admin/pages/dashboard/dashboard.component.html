@@ -1,9 +1,20 @@
 <div class="dashboard">
-    <h1>Dashboard</h1>
-    <p class="muted">All posts (stable list)</p>
+    <div class="dashboard-header">
+        <div class="header-left">
+            <h1>Dashboard</h1>
+            <p class="muted">Manage all your blog posts</p>
+        </div>
+        <button class="btn-primary" (click)="router.navigate(['/admin/editor'])">
+            <span class="material-icons-round">add</span>
+            New Post
+        </button>
+    </div>
 
     @if (loading()) {
-    <p class="muted">Loading…</p>
+    <div class="loading-state">
+        <span class="spinner"></span>
+        <span>Loading posts...</span>
+    </div>
     }
 
     <div class="card">
@@ -26,8 +37,12 @@
                         <div class="post-title">
                             @if (post.cover_image_url) {
                             <img [src]="post.cover_image_url" alt="" class="post-thumb" />
+                            } @else {
+                            <div class="post-thumb placeholder">
+                                <span class="material-icons-round">image</span>
+                            </div>
                             }
-                            <span>{{ post.title }}</span>
+                            <span class="title-text">{{ post.title }}</span>
                         </div>
                     </td>
 
@@ -40,6 +55,9 @@
                     <td>
                         <span class="status" [class.published]="post.status === 'published'"
                             [class.draft]="post.status === 'draft'">
+                            <span class="material-icons-round">
+                                {{ post.status === 'published' ? 'check_circle' : 'edit' }}
+                            </span>
                             {{ post.status }}
                         </span>
                     </td>
@@ -56,8 +74,12 @@
                     <!-- ACTIONS -->
                     <td>
                         <div class="actions">
-                            <button (click)="editPost(post.id)">✏️</button>
-                            <button class="danger" (click)="deletePost(post.id)">🗑️</button>
+                            <button class="btn-icon" (click)="editPost(post.id)" title="Edit">
+                                <span class="material-icons-round">edit</span>
+                            </button>
+                            <button class="btn-icon danger" (click)="deletePost(post.id)" title="Delete">
+                                <span class="material-icons-round">delete</span>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -65,7 +87,15 @@
 
                 @if (!loading() && posts().length === 0) {
                 <tr>
-                    <td colspan="5" class="muted">No posts yet</td>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <span class="material-icons-round">article</span>
+                            <p>No posts yet</p>
+                            <button class="btn-secondary" (click)="router.navigate(['/admin/editor'])">
+                                Create your first post
+                            </button>
+                        </div>
+                    </td>
                 </tr>
                 }
             </tbody>

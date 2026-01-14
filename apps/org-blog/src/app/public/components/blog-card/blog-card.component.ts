@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Post } from '@shared/models/post.model';
+import { Post, PostCategory } from '@shared/models/post.model';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -12,4 +12,15 @@ import { DatePipe } from '@angular/common';
 })
 export class BlogCardComponent {
     @Input({ required: true }) post!: Post;
+
+    formatCategory(category: PostCategory): string {
+        const labels: Record<PostCategory, string> = {
+            'blog': 'Blog',
+            'osint_guide': 'OSINT Guide',
+            'scam_alert': 'Scam Alert',
+            'resource': 'Resource',
+            'case_studies': 'Case Study'
+        };
+        return labels[category] || category;
+    }
 }

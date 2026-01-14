@@ -1,133 +1,212 @@
-<div class="editor-page">
+<div class="editor-page" [class.sidebar-hidden]="!sidebarVisible()">
+    <!-- FLOATING SIDEBAR TOGGLE -->
+    <button class="sidebar-toggle" (click)="toggleSidebar()" [class.open]="sidebarVisible()">
+        <span class="material-icons-round">
+            {{ sidebarVisible() ? 'chevron_left' : 'menu' }}
+        </span>
+    </button>
+
+    <!-- SIDEBAR OVERLAY (for mobile) -->
+    @if (sidebarVisible()) {
+    <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+    }
+
     <!-- TOP BAR -->
     <div class="editor-topbar">
         <div class="left">
-            <button (click)="router.navigate(['/admin'])">← Back</button>
+            <button class="btn-back" (click)="goBack()">
+                <span class="material-icons-round">arrow_back</span>
+                Back
+            </button>
+
+            @if (dirty()) {
+            <span class="unsaved-badge">
+                <span class="material-icons-round">edit</span>
+                Unsaved Changes
+            </span>
+            }
         </div>
 
         <div class="right">
-            <button class="primary" (click)="savePost()" [disabled]="saving()">
-                {{ saving() ? 'Saving…' : (isEdit() ? 'Update' : 'Save') }}
+            <button class="btn-primary" (click)="savePost()" [disabled]="saving()">
+                @if (saving()) {
+                <span class="spinner"></span>
+                Saving...
+                } @else {
+                <span class="material-icons-round">save</span>
+                {{ isEdit() ? 'Update' : 'Save' }}
+                }
             </button>
         </div>
     </div>
 
-    <!-- GRID -->
+
+    <!-- MAIN GRID -->
     <div class="editor-grid">
-        <!-- META PANEL -->
-        <aside class="editor-meta">
-            <div class="group">
-                <label>Title</label>
-                <input [(ngModel)]="title" (ngModelChange)="generateSlug(); markDirty()"
-                    placeholder="Enter post title..." />
-            </div>
-
-            <div class="group">
-                <label>Short Description</label>
-                <textarea rows="3" [(ngModel)]="shortDesc" (ngModelChange)="markDirty()"
-                    placeholder="Brief summary for cards..." maxlength="200"></textarea>
-                <small class="char-count">{{ shortDesc.length }}/200</small>
-            </div>
-
-            <div class="group">
-                <label>Slug</label>
-                <div class="slug-field">
-                    <input [(ngModel)]="slug" (input)="onSlugManualEdit()" placeholder="url-friendly-slug" />
-                    @if (slugManuallyEdited) {
-                    <button type="button" class="slug-reset" (click)="resetSlugToAuto()"
-                        title="Reset to auto-generate">🔄</button>
-                    }
-                </div>
-            </div>
-
-            <div class="group">
-                <label>Category</label>
-                <select [(ngModel)]="category" (ngModelChange)="markDirty()">
-                    @for (cat of categories; track cat) {
-                    <option [value]="cat">{{ cat.replace('_', ' ') | titlecase }}</option>
-                    }
-                </select>
-            </div>
-
-            <!-- COVER IMAGE -->
-            <div class="group">
-                <label>Cover Image</label>
-                <input type="file" accept="image/*" (change)="onCoverUpload($event)" #coverInput hidden />
-
-                <div class="editor-cover">
-                    @if (cover) {
-                    <img [src]="cover" alt="Cover" />
-                    } @else {
-                    <span>Upload cover image</span>
-                    }
-                </div>
-
-                <div class="cover-actions">
-                    @if (!cover) {
-                    <button (click)="coverInput.click()">📤 Upload</button>
-                    } @else {
-                    <button (click)="coverInput.click()">🔄 Replace</button>
-                    <button class="danger" (click)="removeCover()">🗑️ Remove</button>
-                    }
-                </div>
-            </div>
-
-            <!-- FILE UPLOAD FOR EMBEDDING -->
-            <div class="group">
-                <label>📁 Upload Files for Embedding</label>
-                <input type="file" accept="image/*,.pdf,.doc,.docx" (change)="onEmbedFileUpload($event)" #embedFileInput
-                    hidden />
-
-                <button class="upload-btn" (click)="triggerEmbedFileUpload()" [disabled]="uploadingFile">
-                    {{ uploadingFile ? '⏳ Uploading...' : '📎 Upload File' }}
+        <!-- SLIDING SIDEBAR META PANEL -->
+        <aside class="editor-meta" [class.visible]="sidebarVisible()">
+            <div class="meta-header">
+                <h3>Post Settings</h3>
+                <button class="btn-close" (click)="toggleSidebar()">
+                    <span class="material-icons-round">close</span>
                 </button>
+            </div>
 
-                @if (uploadedFiles.length > 0) {
-                <div class="uploaded-files">
-                    @for (file of uploadedFiles; track file.url; let i = $index) {
-                    <div class="uploaded-file">
-                        <a class="file-name" [href]="file.url" target="_blank" [title]="file.url">{{ file.name }}</a>
-                        <div class="file-actions">
+            <div class="meta-content">
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">title</span>
+                        Title
+                    </label>
+                    <input [(ngModel)]="title" (ngModelChange)="generateSlug(); markDirty()"
+                        placeholder="Enter post title..." />
+                </div>
+
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">short_text</span>
+                        Short Description
+                    </label>
+                    <textarea rows="3" [(ngModel)]="shortDesc" (ngModelChange)="markDirty()"
+                        placeholder="Brief summary for cards..." maxlength="200"></textarea>
+                    <small class="char-count">{{ shortDesc.length }}/200</small>
+                </div>
+
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">link</span>
+                        Slug
+                    </label>
+                    <div class="slug-field">
+                        <input [(ngModel)]="slug" (input)="onSlugManualEdit()" placeholder="url-friendly-slug" />
+                        @if (slugManuallyEdited) {
+                        <button type="button" class="slug-reset" (click)="resetSlugToAuto()"
+                            title="Reset to auto-generate">
+                            <span class="material-icons-round">refresh</span>
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">folder</span>
+                        Category
+                    </label>
+                    <select [(ngModel)]="category" (ngModelChange)="markDirty()">
+                        @for (cat of categories; track cat) {
+                        <option [value]="cat">{{ cat.replace('_', ' ') | titlecase }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- COVER IMAGE -->
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">image</span>
+                        Cover Image
+                    </label>
+                    <input type="file" accept="image/*" (change)="onCoverUpload($event)" #coverInput hidden />
+
+                    <div class="editor-cover" (click)="coverInput.click()">
+                        @if (cover) {
+                        <img [src]="cover" alt="Cover" />
+                        } @else {
+                        <div class="cover-placeholder">
+                            <span class="material-icons-round">add_photo_alternate</span>
+                            <span>Upload cover</span>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="cover-actions">
+                        @if (cover) {
+                        <button class="btn-sm" (click)="coverInput.click()">
+                            <span class="material-icons-round">sync</span>
+                            Replace
+                        </button>
+                        <button class="btn-sm danger" (click)="removeCover()">
+                            <span class="material-icons-round">delete</span>
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">visibility</span>
+                        Status
+                    </label>
+                    <select [(ngModel)]="status" (ngModelChange)="markDirty()">
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+
+                <!-- META SEO -->
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">search</span>
+                        Meta Title
+                    </label>
+                    <input [(ngModel)]="metaTitle" (ngModelChange)="markDirty()" placeholder="SEO title..." />
+                </div>
+
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">description</span>
+                        Meta Description
+                    </label>
+                    <textarea rows="2" [(ngModel)]="metaDesc" (ngModelChange)="markDirty()"
+                        placeholder="SEO description..."></textarea>
+                </div>
+
+                <!-- FILE UPLOADS -->
+                <div class="group">
+                    <label>
+                        <span class="material-icons-round">attach_file</span>
+                        Upload Files
+                    </label>
+                    <input type="file" accept="image/*,.pdf,.doc,.docx" (change)="onEmbedFileUpload($event)"
+                        #embedFileInput hidden />
+
+                    <button class="btn-upload" (click)="triggerEmbedFileUpload()" [disabled]="uploadingFile">
+                        @if (uploadingFile) {
+                        <span class="spinner-sm"></span>
+                        Uploading...
+                        } @else {
+                        <span class="material-icons-round">upload_file</span>
+                        Upload
+                        }
+                    </button>
+
+                    @if (uploadedFiles.length > 0) {
+                    <div class="uploaded-files">
+                        @for (file of uploadedFiles.slice(0, 5); track file.url; let i = $index) {
+                        <div class="uploaded-file">
+                            <span class="file-name" [title]="file.url">{{ file.name }}</span>
                             <button class="copy-btn" (click)="copyToClipboard(file.url)"
                                 [class.copied]="copiedUrl === file.url">
-                                {{ copiedUrl === file.url ? '✓' : '📋' }}
+                                <span class="material-icons-round">{{ copiedUrl === file.url ? 'check' : 'content_copy'
+                                    }}</span>
                             </button>
-                            <button class="remove-btn" (click)="removeUploadedFile(i)">×</button>
                         </div>
+                        }
                     </div>
                     }
                 </div>
-                }
-            </div>
-
-            <div class="group">
-                <label>Meta Title</label>
-                <input [(ngModel)]="metaTitle" (ngModelChange)="markDirty()" />
-            </div>
-
-            <div class="group">
-                <label>Meta Description</label>
-                <textarea rows="2" [(ngModel)]="metaDesc" (ngModelChange)="markDirty()"></textarea>
-            </div>
-
-            <div class="group">
-                <label>Status</label>
-                <select [(ngModel)]="status" (ngModelChange)="markDirty()">
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                </select>
             </div>
         </aside>
 
-        <!-- CANVAS -->
+        <!-- CANVAS SECTION -->
         <section class="editor-canvas">
             <div class="editor-wrapper">
                 <div class="ngx-toolbar-wrapper">
                     <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"
                         [colorPresets]="colorPresets"></ngx-editor-menu>
 
-                    <button class="custom-image-btn" (click)="triggerEditorImageUpload()" title="Upload & Insert Image">
-                        🖼️ Upload Image
+                    <button class="custom-image-btn" (click)="triggerEditorImageUpload()" title="Upload Image">
+                        <span class="material-icons-round">add_photo_alternate</span>
                     </button>
                     <input type="file" accept="image/*" (change)="onEditorImageUpload($event)" #editorImageInput
                         hidden />
@@ -143,4 +222,30 @@
 @if (showCropper) {
 <app-image-cropper-modal [imageChangedEvent]="imageEvent" [aspectRatio]="16/9" (cropConfirm)="onCropConfirm($event)"
     (cropCancel)="onCropCancel()"></app-image-cropper-modal>
+}
+
+<!-- UNSAVED CHANGES MODAL -->
+@if (showUnsavedModal()) {
+<div class="modal-overlay" (click)="cancelLeave()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon warning">
+            <span class="material-icons-round">warning_amber</span>
+        </div>
+        <h2 class="modal-title">Unsaved Changes</h2>
+        <p class="modal-text">
+            You have unsaved changes that will be lost if you leave this page.
+            Do you want to continue without saving?
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" (click)="cancelLeave()">
+                <span class="material-icons-round">edit</span>
+                Keep Editing
+            </button>
+            <button class="btn-danger" (click)="confirmLeave()">
+                <span class="material-icons-round">exit_to_app</span>
+                Leave Without Saving
+            </button>
+        </div>
+    </div>
+</div>
 }

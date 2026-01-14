@@ -1,96 +1,94 @@
-import { Component, OnInit, signal, Input, AfterViewInit, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PostsService } from '@core/services/posts.service';
 import { ToastService } from '@core/services/toast.service';
 import { Post, PostCategory } from '@shared/models/post.model';
 import { BlogCardComponent } from '../../components/blog-card/blog-card.component';
 import { SkeletonComponent } from '../../components/skeleton/skeleton.component';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+interface CategoryTab {
+  label: string;
+  value: PostCategory | 'all';
+}
+
+import { CommonModule, DatePipe } from '@angular/common';
+// RouterLink already imported from @angular/router
 
 @Component({
-  selector: 'app-horizontal-section',
+  selector: 'app-home',
   standalone: true,
-  imports: [BlogCardComponent, SkeletonComponent],
-  template: `
-    <section class="home-section" #section>
-      <div class="container">
-        <h2 class="section-title">{{ title }}</h2>
-
-        <div class="horizontal-scroll" #scrollContainer>
-          @if (loading()) {
-            @for (i of [1,2,3,4]; track i) {
-              <app-skeleton></app-skeleton>
-            }
-          }
-
-          @if (!loading()) {
-            @for (post of posts(); track post.id) {
-              <div class="card-wrapper">
-                <app-blog-card [post]="post"></app-blog-card>
-              </div>
-            }
-          }
-        </div>
-      </div>
-    </section>
-  `,
-  styles: [`
-    .home-section { padding: 60px 0; opacity: 0; visibility: hidden; } /* Hidden initially for animation */
-    .section-title { font-size: 26px; margin-bottom: 20px; }
-    .horizontal-scroll {
-      display: flex;
-      gap: 24px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 8px;
-    }
-    .horizontal-scroll::-webkit-scrollbar { display: none; }
-    .card-wrapper {
-      min-width: 300px;
-      max-width: 300px;
-      scroll-snap-align: start;
-    }
-    .horizontal-scroll ::ng-deep app-skeleton > * {
-      min-width: 300px;
-      max-width: 300px;
-      scroll-snap-align: start;
-    }
-  `]
+  imports: [BlogCardComponent, SkeletonComponent, FormsModule, RouterLink, CommonModule, DatePipe],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss'
 })
-export class HorizontalSectionComponent implements OnInit {
-  @Input({ required: true }) title!: string;
-  @Input({ required: true }) type!: 'blog' | 'osint' | 'scam' | 'resources';
-  @ViewChild('section') sectionRef!: ElementRef;
-  @ViewChild('scrollContainer') scrollRef!: ElementRef;
+export class HomeComponent implements OnInit, OnDestroy {
+  // Category tabs with colors
+  categories: (CategoryTab & { color: string })[] = [
+    // 'All' is handled manually in template
+    { label: 'Blog', value: 'blog', color: '#8b5cf6' },
+    { label: 'OSINT Guide', value: 'osint_guide', color: '#10b981' },
+    { label: 'Scam Alert', value: 'scam_alert', color: '#ef4444' },
+    { label: 'Resources', value: 'resource', color: '#f59e0b' }
+  ];
 
-  posts = signal<Post[]>([]);
+  selectedCategory = signal<PostCategory | 'all'>('all');
+  activeCategory = this.selectedCategory; // Alias for template compatibility
+
+  // Posts data
+  allPosts = signal<Post[]>([]);
+  filteredPosts = signal<Post[]>([]);
+  featuredPosts = signal<Post[]>([]);
+  currentFeaturedIndex = signal(0);
   loading = signal(true);
 
-  private categoryMap: Record<string, PostCategory | undefined> = {
-    blog: undefined, // all categories for blog
-    osint: 'osint_guide',
-    scam: 'scam_alert',
-    resources: 'resource'
-  };
+  // Pagination
+  currentPage = signal(1);
+  postsPerPage = 9;
+  totalPages = signal(1);
 
-  constructor(private postsService: PostsService) { }
+  // Subscription
+  email = '';
+
+  private postsService = inject(PostsService);
+  private toast = inject(ToastService);
+  private route = inject(ActivatedRoute);
+  private sliderInterval: any;
 
   ngOnInit(): void {
     this.fetchPosts();
+
+    // Listen to query params for category filtering
+    this.route.queryParams.subscribe(params => {
+      const category = params['category'];
+      if (category && this.isValidCategory(category)) {
+        this.filterCategory(category as PostCategory);
+      } else {
+        // Optional: reset to 'all' if no valid category, but maybe unnecessary if we want to keep state
+        // currently defaulting to 'all' on init
+      }
+    });
+
+    this.startSlider();
+  }
+
+  ngOnDestroy(): void {
+    this.stopSlider();
   }
 
   fetchPosts(): void {
-    const category = this.categoryMap[this.type];
+    this.loading.set(true);
+    this.postsService.getPublished(undefined, 100).subscribe({
+      next: (posts) => {
+        this.allPosts.set(posts);
 
-    this.postsService.getPublished(category, 10).subscribe({
-      next: (data) => {
-        this.posts.set(data);
+        // Set top 5 posts as featured
+        if (posts.length > 0) {
+          this.featuredPosts.set(posts.slice(0, 5));
+        }
+
+        this.applyFilter();
         this.loading.set(false);
-        // Trigger animation after render
-        setTimeout(() => this.animateEntrance(), 100);
       },
       error: () => {
         this.loading.set(false);
@@ -98,51 +96,118 @@ export class HorizontalSectionComponent implements OnInit {
     });
   }
 
-  private animateEntrance(): void {
-    const section = this.sectionRef.nativeElement;
-    const cards = this.scrollRef.nativeElement.querySelectorAll('.card-wrapper');
-
-    gsap.to(section, { autoAlpha: 1, duration: 0.5 });
-
-    gsap.fromTo(cards,
-      { x: 50, opacity: 0 },
-      {
-        x: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 85%'
-        }
-      }
-    );
+  startSlider(): void {
+    this.stopSlider();
+    this.sliderInterval = setInterval(() => {
+      this.nextFeatured();
+    }, 5000); // 5 seconds
   }
-}
 
-@Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [HorizontalSectionComponent, FormsModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
-})
-export class HomeComponent {
-  sections = [
-    { title: 'Latest Blogs', type: 'blog' as const },
-    { title: 'OSINT Guides', type: 'osint' as const },
-    { title: 'Scam Alerts', type: 'scam' as const },
-    { title: 'Resources', type: 'resources' as const }
-  ];
-
-  private toast = inject(ToastService);
-  newsletterEmail = '';
-
-  subscribeNewsletter(): void {
-    if (this.newsletterEmail) {
-      this.toast.success(`Thanks for subscribing with ${this.newsletterEmail}!`);
-      this.newsletterEmail = '';
+  stopSlider(): void {
+    if (this.sliderInterval) {
+      clearInterval(this.sliderInterval);
     }
+  }
+
+  nextFeatured(): void {
+    this.currentFeaturedIndex.update(i => (i + 1) % this.featuredPosts().length);
+  }
+
+  prevFeatured(): void {
+    this.currentFeaturedIndex.update(i => (i - 1 + this.featuredPosts().length) % this.featuredPosts().length);
+  }
+
+  setFeatured(index: number): void {
+    this.currentFeaturedIndex.set(index);
+    this.startSlider(); // Reset timer on manual interaction
+  }
+
+  filterCategory(category: PostCategory | 'all'): void {
+    this.selectedCategory.set(category);
+    this.currentPage.set(1);
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    const category = this.selectedCategory();
+    let filtered: Post[];
+
+    if (category === 'all') {
+      filtered = this.allPosts();
+    } else {
+      filtered = this.allPosts().filter(post => post.category === category);
+    }
+
+    this.filteredPosts.set(filtered);
+    this.totalPages.set(Math.ceil(filtered.length / this.postsPerPage) || 1);
+  }
+
+  get paginatedPosts(): Post[] {
+    const start = (this.currentPage() - 1) * this.postsPerPage;
+    const end = start + this.postsPerPage;
+    return this.filteredPosts().slice(start, end);
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+    let start = Math.max(1, current - 2);
+    let end = Math.min(total, start + 4);
+
+    if (end - start < 4) {
+      start = Math.max(1, end - 4);
+    }
+
+    for (let i = start; i <= end; i++) {
+      if (i > 0) pages.push(i);
+    }
+
+    return pages;
+  }
+
+  // Alias for template
+  pagesArray = () => this.pageNumbers;
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) this.goToPage(this.currentPage() - 1);
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) this.goToPage(this.currentPage() + 1);
+  }
+
+  subscribe(event: Event): void {
+    event.preventDefault();
+    if (this.email) {
+      this.postsService.subscribe(this.email).subscribe({
+        next: () => {
+          this.toast.success(`Thanks for subscribing! We'll send updates to ${this.email}`);
+          this.email = '';
+        },
+        error: (err) => {
+          if (err.status === 409 || err.error?.message?.includes('already')) {
+            this.toast.info('You are already subscribed!');
+          } else {
+            this.toast.error('Failed to subscribe. Please try again.');
+          }
+        }
+      });
+    }
+  }
+
+  formatCategory(category: string): string {
+    return category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+
+  isValidCategory(cat: string): boolean {
+    return ['blog', 'osint_guide', 'scam_alert', 'resource', 'all'].includes(cat);
   }
 }

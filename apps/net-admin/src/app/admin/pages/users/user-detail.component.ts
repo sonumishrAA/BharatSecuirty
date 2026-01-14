@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
-import { environment } from '../../../../environments/environment';
+import { environment } from '@environments';
 
 interface StatusHistory {
     id: string;

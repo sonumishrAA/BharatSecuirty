@@ -1,9 +1,9 @@
 @use '../../../../styles/variables' as *;
 
 .footer {
-    background: transparent;
-    border-top: 1px solid rgba(white, 0.06);
-    padding: 90px 0 30px;
+    background: linear-gradient(180deg, $public-bg-main 0%, darken($public-bg-main, 3%) 100%);
+    border-top: 1px solid $public-border-soft;
+    padding: 80px 0 30px;
 }
 
 .footer-container {
@@ -14,16 +14,23 @@
 
 .footer-brand {
     h2 {
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: $space-md;
-        color: $public-neon-cyan;
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 24px;
+        color: white;
+        letter-spacing: -0.5px;
+
+        &::before {
+            content: '🛡️';
+            margin-right: 8px;
+        }
     }
 
     p {
         color: $public-text-muted;
-        max-width: 420px;
-        line-height: 1.6;
+        max-width: 380px;
+        line-height: 1.7;
+        font-size: 15px;
     }
 }
 
@@ -33,35 +40,48 @@
     gap: 40px;
 
     h4 {
-        font-size: $font-md;
-        margin-bottom: $space-md;
-        color: $public-text-main;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        color: white;
+        letter-spacing: 0.5px;
     }
 
     a {
         display: block;
-        margin-bottom: $space-sm;
-        font-size: $font-md;
+        margin-bottom: 12px;
+        font-size: 15px;
         color: $public-text-muted;
-        transition: color $transition-fast;
+        transition: color 0.2s ease;
+        text-decoration: none;
 
         &:hover {
-            color: $public-neon-cyan;
+            color: $public-accent-light;
         }
     }
 }
 
 .footer-bottom {
     margin-top: 60px;
-    padding-top: $space-lg;
-    border-top: 1px solid rgba(white, 0.05);
+    padding-top: 32px;
+    border-top: 1px solid $public-border-soft;
     text-align: center;
-    font-size: $font-sm;
-    color: $public-text-muted;
+    font-size: 14px;
+    color: $public-text-subtle;
 }
 
-@media (max-width: $breakpoint-md) {
+@media (max-width: 768px) {
+    .footer {
+        padding: 60px 0 24px;
+    }
+
     .footer-container {
         grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .footer-brand p {
+        max-width: 100%;
     }
 }

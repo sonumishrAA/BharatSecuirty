@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Post, PostDto, PostCategory, PostStatus } from '@shared/models/post.model';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments';
 
 export interface PostQueryParams {
     status?: PostStatus;

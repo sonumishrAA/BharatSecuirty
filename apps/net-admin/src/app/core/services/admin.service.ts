@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments';
 
 export interface Booking {
     id: string;
@@ -30,6 +30,16 @@ export interface BusinessService {
     icon: string;
     features?: string[];
     status?: 'active' | 'inactive';
+}
+
+export interface BusinessTestimonial {
+    id?: string;
+    client_name: string;
+    company?: string;
+    content: string;
+    rating: number;
+    avatar_url?: string;
+    created_at?: string;
 }
 
 @Injectable({
@@ -112,6 +122,20 @@ export class AdminService {
     // Dashboard Stats
     getDashboardStats(): Observable<any> {
         return this.http.get<any>(`${this.apiUrl}/stats`);
+    }
+
+    // Testimonials
+    getTestimonials(): Observable<BusinessTestimonial[]> {
+        return this.http.get<BusinessTestimonial[]>(`${this.apiUrl}/testimonials`);
+    }
+
+    createTestimonial(data: BusinessTestimonial): Observable<BusinessTestimonial> {
+        console.log('AdminService.createTestimonial:', data);
+        return this.http.post<BusinessTestimonial>(`${this.apiUrl}/testimonials`, data);
+    }
+
+    deleteTestimonial(id: string): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/testimonials/${id}`);
     }
 }
 

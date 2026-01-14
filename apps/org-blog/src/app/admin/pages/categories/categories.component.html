@@ -1,28 +1,54 @@
-<div>
-    <h1>Categories</h1>
-    <p class="muted">Posts grouped by category</p>
+<div class="categories-page">
+    <div class="page-header">
+        <h1>
+            <span class="material-icons-round">folder</span>
+            Categories
+        </h1>
+        <p class="muted">Posts grouped by category</p>
+    </div>
 
     @if (loading()) {
-    <p class="muted">Loading…</p>
-    }
-
-    @for (cat of getCategoryKeys(); track cat) {
-    <div class="card">
-        <h3>
-            {{ cat }} <small>({{ groups()[cat].length }})</small>
-        </h3>
-
-        <ul class="category-list">
-            @for (post of groups()[cat]; track post.id) {
-            <li>
-                <span>{{ post.title }}</span>
-                <span class="badge" [class.published]="post.status === 'published'"
-                    [class.draft]="post.status === 'draft'">
-                    {{ post.status }}
-                </span>
-            </li>
-            }
-        </ul>
+    <div class="loading-state">
+        <span class="spinner"></span>
+        <span>Loading categories...</span>
     </div>
     }
+
+    <div class="categories-grid">
+        @for (cat of getCategoryKeys(); track cat) {
+        <div class="category-card">
+            <div class="category-header">
+                <span class="material-icons-round category-icon">
+                    @switch (cat) {
+                    @case ('blog') { article }
+                    @case ('scam_alert') { warning }
+                    @case ('osint_guide') { search }
+                    @case ('resource') { library_books }
+                    @case ('case_studies') { work }
+                    @default { folder }
+                    }
+                </span>
+                <h3>{{ cat | titlecase }}</h3>
+                <span class="count">{{ groups()[cat].length }}</span>
+            </div>
+
+            <ul class="category-list">
+                @for (post of groups()[cat]; track post.id) {
+                <li>
+                    <span class="post-title">{{ post.title }}</span>
+                    <span class="status" [class.published]="post.status === 'published'"
+                        [class.draft]="post.status === 'draft'">
+                        <span class="material-icons-round">
+                            {{ post.status === 'published' ? 'check_circle' : 'edit' }}
+                        </span>
+                    </span>
+                </li>
+                }
+                @if (groups()[cat].length === 0) {
+                <li class="empty">No posts in this category</li>
+                }
+            </ul>
+        </div>
+        }
+    </div>
 </div>

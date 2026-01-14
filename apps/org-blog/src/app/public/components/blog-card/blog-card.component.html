@@ -1,26 +1,33 @@
 <a [routerLink]="['/blog', post.slug]" class="blog-card">
-    @if (post.cover_image_url) {
-    <div class="blog-card-image">
+    <!-- Image with Gradient Overlay -->
+    <div class="card-image">
+        @if (post.cover_image_url) {
         <img [src]="post.cover_image_url" [alt]="post.title" loading="lazy" />
-        <div class="blog-card-overlay"></div>
-    </div>
-    }
-
-    <div class="blog-card-body">
-        <h3 class="blog-card-title">{{ post.title }}</h3>
-
-        @if (post.excerpt) {
-        <p class="blog-card-excerpt">{{ post.excerpt }}</p>
-        }
-
-        <div class="blog-card-meta">
-            <span class="blog-card-date">{{ post.created_at | date:'shortDate' }}</span>
-
-            @if (post.category) {
-            <span class="blog-card-category" [class]="post.category">
-                {{ post.category.replace('_', ' ') }}
-            </span>
-            }
+        } @else {
+        <div class="placeholder-image">
+            <span class="material-icons-round">article</span>
         </div>
+        }
+        <div class="image-overlay"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="card-body">
+        <!-- Category Pills -->
+        <div class="card-tags">
+            <span class="tag" [attr.data-category]="post.category">
+                {{ formatCategory(post.category) }}
+            </span>
+        </div>
+
+        <!-- Title -->
+        <h3 class="card-title">{{ post.title }}</h3>
+
+        <!-- Date -->
+        <!-- Read Now Link -->
+        <span class="read-now">
+            Read Now
+            <span class="material-icons-round">arrow_forward</span>
+        </span>
     </div>
 </a>

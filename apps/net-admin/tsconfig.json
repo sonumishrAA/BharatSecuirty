@@ -35,6 +35,12 @@
             ],
             "@shared/*": [
                 "src/app/shared/*"
+            ],
+            "@environments": [
+                "../../libs/shared/environments/index.ts"
+            ],
+            "@environments/*": [
+                "../../libs/shared/environments/*"
             ]
         }
     },

@@ -57,6 +57,10 @@ export const ADMIN_ROUTES: Routes = [
             {
                 path: 'backend',
                 loadComponent: () => import('./pages/system/system.component').then(m => m.SystemComponent)
+            },
+            {
+                path: 'testimonials',
+                loadComponent: () => import('./pages/testimonials/testimonials.component').then(m => m.TestimonialsComponent)
             }
         ]
     }

@@ -12,6 +12,9 @@ export interface Post {
     meta_description: string | null;
     category: PostCategory;
     status: PostStatus;
+    author_name?: string;
+    author_bio?: string;
+    author_avatar_url?: string;
     created_at: string;
     updated_at: string;
 }

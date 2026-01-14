@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
@@ -7,6 +7,7 @@ import { MediaService, MediaFile } from '@core/services/media.service';
 import { ToastService } from '@core/services/toast.service';
 import { PostDto, PostCategory, PostStatus } from '@shared/models/post.model';
 import { Editor, Toolbar, NgxEditorModule } from 'ngx-editor';
+import { schema } from 'ngx-editor/schema';
 import { ImageCropperModalComponent } from '../../../shared/components/image-cropper-modal/image-cropper-modal.component';
 
 @Component({
@@ -23,27 +24,43 @@ export class EditorComponent implements OnInit, OnDestroy {
     dirty = signal(false);
     saving = signal(false);
 
+    // UI State
+    sidebarVisible = signal(false);
+    showUnsavedModal = signal(false);
+
     // Cropper State
     showCropper = false;
     imageEvent: any = '';
 
-    // Editor
+    // Editor - initialize with proper schema
     editor!: Editor;
+    // Enhanced toolbar with more tools like Google Docs
     toolbar: Toolbar = [
-        ['bold', 'italic'],
-        ['underline', 'strike'],
+        // History
+        ['undo', 'redo'],
+        // Text formatting
+        ['bold', 'italic', 'underline', 'strike'],
+        // Code & Quote
         ['code', 'blockquote'],
+        // Lists
         ['ordered_list', 'bullet_list'],
+        // Headings
         [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
-        ['link', 'align_left', 'align_center', 'align_right', 'align_justify'],
+        // Links & Alignment
+        ['link'],
+        ['align_left', 'align_center', 'align_right', 'align_justify'],
+        // Colors
         ['text_color', 'background_color'],
+        // Extra
+        ['horizontal_rule'],
+        ['format_clear'],
     ];
 
     // Form fields
     title = '';
     shortDesc = '';
     slug = '';
-    slugManuallyEdited = false;  // Track if slug was manually edited
+    slugManuallyEdited = false;
     metaTitle = '';
     metaDesc = '';
     category: PostCategory = 'blog';
@@ -51,32 +68,35 @@ export class EditorComponent implements OnInit, OnDestroy {
     cover = '';
     content: any = { type: 'doc', content: [] };
 
-    // Categories
-    categories: PostCategory[] = ['blog', 'scam_alert', 'osint_guide', 'resource', 'case_studies'];
+    // Categories - REMOVED case_studies
+    categories: PostCategory[] = ['blog', 'scam_alert', 'osint_guide', 'resource'];
 
     // File upload section
     uploadedFiles: MediaFile[] = [];
     uploadingFile = false;
     copiedUrl = '';
 
-    // VS Code-style color palette for text/background colors
+    // Extended color palette - More colors for better selection
     colorPresets: string[] = [
-        // Row 1 - Basic colors
-        '#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#efefef', '#f3f3f3', '#ffffff',
-        // Row 2 - Reds
-        '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff',
-        // Row 3 - Lighter versions
-        '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc',
-        // Row 4 - Medium versions  
-        '#dd7e6b', '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#9fc5e8', '#b4a7d6', '#d5a6bd',
-        // Row 5 - Darker versions
-        '#cc4125', '#e06666', '#f6b26b', '#ffd966', '#93c47d', '#76a5af', '#6d9eeb', '#6fa8dc', '#8e7cc3', '#c27ba0',
-        // Row 6 - Dark versions
-        '#a61c00', '#cc0000', '#e69138', '#f1c232', '#6aa84f', '#45818e', '#3c78d8', '#3d85c6', '#674ea7', '#a64d79',
-        // Row 7 - Very dark
-        '#85200c', '#990000', '#b45f06', '#bf9000', '#38761d', '#134f5c', '#1155cc', '#0b5394', '#351c75', '#741b47',
-        // Row 8 - Darkest
-        '#5b0f00', '#660000', '#783f04', '#7f6000', '#274e13', '#0c343d', '#1c4587', '#073763', '#20124d', '#4c1130'
+        // Grayscale
+        '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc', '#e6e6e6', '#f2f2f2', '#ffffff',
+        // Reds
+        '#330000', '#660000', '#990000', '#cc0000', '#ff0000', '#ff3333', '#ff6666', '#ff9999', '#ffcccc', '#ffe6e6',
+        // Oranges
+        '#331a00', '#663300', '#994d00', '#cc6600', '#ff8000', '#ff9933', '#ffb366', '#ffcc99', '#ffe6cc',
+        // Yellows
+        '#333300', '#666600', '#999900', '#cccc00', '#ffff00', '#ffff33', '#ffff66', '#ffff99', '#ffffcc',
+        // Greens
+        '#003300', '#006600', '#009900', '#00cc00', '#00ff00', '#33ff33', '#66ff66', '#99ff99', '#ccffcc',
+        // Cyans
+        '#003333', '#006666', '#009999', '#00cccc', '#00ffff', '#33ffff', '#66ffff', '#99ffff', '#ccffff',
+        // Blues
+        '#000033', '#000066', '#000099', '#0000cc', '#0000ff', '#3333ff', '#6666ff', '#9999ff', '#ccccff',
+        // Purples
+        '#330033', '#660066', '#990099', '#cc00cc', '#ff00ff', '#ff33ff', '#ff66ff', '#ff99ff', '#ffccff',
+        // Deep Forest & Terracotta (from screenshot)
+        '#052e16', '#14532d', '#166534', '#15803d', '#16a34a', '#22c55e', '#4ade80', '#86efac',
+        '#9a3412', '#c2410c', '#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa',
     ];
 
     @ViewChild('editorImageInput') editorImageInput!: ElementRef<HTMLInputElement>;
@@ -91,10 +111,21 @@ export class EditorComponent implements OnInit, OnDestroy {
         private toast: ToastService
     ) { }
 
-    ngOnInit(): void {
-        this.editor = new Editor();
+    // ===== UNSAVED CHANGES WARNING =====
+    @HostListener('window:beforeunload', ['$event'])
+    onBeforeUnload(event: BeforeUnloadEvent): void {
+        if (this.dirty()) {
+            event.preventDefault();
+            event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        }
+    }
 
-        // Load existing media files from library
+    ngOnInit(): void {
+        // Initialize editor with the built-in schema that includes all node types
+        this.editor = new Editor({
+            schema: schema  // Use the built-in schema from ngx-editor
+        });
+
         this.loadMediaFiles();
 
         const id = this.route.snapshot.paramMap.get('id');
@@ -103,17 +134,26 @@ export class EditorComponent implements OnInit, OnDestroy {
             this.isEdit.set(true);
             this.loadPost(id);
         }
+
+        // Show login warning on page load
+        this.showLoginWarning();
+    }
+
+    showLoginWarning(): void {
+        const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+        if (navEntries.length > 0 && navEntries[0].type === 'reload') {
+            this.toast.warning('⚠️ Page refreshed! Please check your login status.');
+        }
     }
 
     loadMediaFiles(): void {
         this.mediaService.getAll().subscribe({
             next: (mediaList) => {
-                // Combine covers and files, most recent first
                 const allFiles = [
                     ...mediaList.files.map(f => ({ ...f, type: 'file' as const })),
                     ...mediaList.covers.map(f => ({ ...f, type: 'image' as const }))
                 ];
-                this.uploadedFiles = allFiles.slice(0, 20); // Show last 20 files
+                this.uploadedFiles = allFiles.slice(0, 20);
             },
             error: (err) => {
                 console.error('Failed to load media files:', err);
@@ -123,6 +163,11 @@ export class EditorComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.editor.destroy();
+        localStorage.removeItem('admin_preview_data');
+    }
+
+    toggleSidebar(): void {
+        this.sidebarVisible.update(v => !v);
     }
 
     loadPost(id: string): void {
@@ -130,14 +175,23 @@ export class EditorComponent implements OnInit, OnDestroy {
             next: (post) => {
                 this.title = post.title;
                 this.slug = post.slug;
-                this.slugManuallyEdited = true; // Existing post - treat slug as manually set
+                this.slugManuallyEdited = true;
                 this.shortDesc = post.excerpt;
                 this.metaTitle = post.meta_title || '';
                 this.metaDesc = post.meta_description || '';
                 this.category = post.category;
                 this.status = post.status;
                 this.cover = post.cover_image_url || '';
-                this.content = post.content || { type: 'doc', content: [] };
+
+                // Sanitize content to fix node type naming issues
+                try {
+                    this.content = this.sanitizeContent(post.content) || { type: 'doc', content: [] };
+                } catch (e) {
+                    console.error('Content sanitization error:', e);
+                    this.content = { type: 'doc', content: [] };
+                    this.toast.warning('Content format issue - some content may not load correctly');
+                }
+
                 this.dirty.set(false);
             },
             error: () => {
@@ -146,8 +200,41 @@ export class EditorComponent implements OnInit, OnDestroy {
         });
     }
 
+    // Sanitize content to fix node type naming mismatches
+    private sanitizeContent(content: any): any {
+        if (!content) return { type: 'doc', content: [] };
+
+        const sanitizeNode = (node: any): any => {
+            if (!node) return node;
+
+            // Map incorrect node type names to correct ones
+            const nodeTypeMap: { [key: string]: string } = {
+                'listItem': 'list_item',
+                'bulletList': 'bullet_list',
+                'orderedList': 'ordered_list',
+                'codeBlock': 'code_block',
+                'hardBreak': 'hard_break'
+            };
+
+            let sanitized = { ...node };
+
+            // Fix node type if needed
+            if (sanitized.type && nodeTypeMap[sanitized.type]) {
+                sanitized.type = nodeTypeMap[sanitized.type];
+            }
+
+            // Recursively sanitize child content
+            if (sanitized.content && Array.isArray(sanitized.content)) {
+                sanitized.content = sanitized.content.map(sanitizeNode);
+            }
+
+            return sanitized;
+        };
+
+        return sanitizeNode(content);
+    }
+
     generateSlug(): void {
-        // Always regenerate slug from title (unless manually edited)
         if (!this.slugManuallyEdited && this.title) {
             this.slug = this.title
                 .toLowerCase()
@@ -172,13 +259,30 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.dirty.set(true);
     }
 
+    goBack(): void {
+        if (this.dirty()) {
+            this.showUnsavedModal.set(true);
+            return;
+        }
+        this.router.navigate(['/admin']);
+    }
+
+    confirmLeave(): void {
+        this.showUnsavedModal.set(false);
+        this.dirty.set(false); // Prevent beforeunload from firing
+        this.router.navigate(['/admin']);
+    }
+
+    cancelLeave(): void {
+        this.showUnsavedModal.set(false);
+    }
+
     savePost(): void {
         if (!this.title || !this.shortDesc) {
             this.toast.warning('Title and short description required');
             return;
         }
 
-        // Auto-generate slug if empty
         if (!this.slug) {
             this.generateSlug();
         }
@@ -205,7 +309,7 @@ export class EditorComponent implements OnInit, OnDestroy {
             next: () => {
                 this.saving.set(false);
                 this.dirty.set(false);
-                this.toast.success(this.isEdit() ? 'Post updated successfully!' : 'Post created successfully!');
+                this.toast.success(this.isEdit() ? 'Post updated!' : 'Post created!');
 
                 if (!this.isEdit()) {
                     this.router.navigate(['/admin']);
@@ -234,7 +338,12 @@ export class EditorComponent implements OnInit, OnDestroy {
             },
             error: (err) => {
                 console.error('Upload Error:', err);
-                this.toast.error('Failed to upload cover image');
+                if (err.status === 401) {
+                    this.toast.error('Session expired. Please login again.');
+                    // Optional: this.router.navigate(['/login']);
+                } else {
+                    this.toast.error('Failed to upload cover image. Check console for details.');
+                }
             }
         });
     }
@@ -252,16 +361,10 @@ export class EditorComponent implements OnInit, OnDestroy {
     onEditorImageUpload(event: Event): void {
         this.handleUpload(event, (url) => {
             const { state, dispatch } = this.editor.view;
-            const { schema } = state;
-
-            // Create an image node
-            const imageNode = schema.nodes['image'].create({ src: url });
-
-            // Insert it at current selection
+            const { schema: editorSchema } = state;
+            const imageNode = editorSchema.nodes['image'].create({ src: url });
             const tr = state.tr.replaceSelectionWith(imageNode);
             dispatch(tr);
-
-            // Focus back to editor
             this.editor.view.focus();
         });
     }
@@ -277,7 +380,11 @@ export class EditorComponent implements OnInit, OnDestroy {
             },
             error: (err) => {
                 console.error('Upload Error:', err);
-                this.toast.error('Upload failed');
+                if (err.status === 401) {
+                    this.toast.error('Session expired. Please login again.');
+                } else {
+                    this.toast.error('Upload failed. Check console.');
+                }
             }
         });
 
@@ -289,7 +396,6 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.markDirty();
     }
 
-    // ===== FILE UPLOAD FOR EMBEDDING =====
     triggerEmbedFileUpload(): void {
         this.embedFileInput.nativeElement.click();
     }

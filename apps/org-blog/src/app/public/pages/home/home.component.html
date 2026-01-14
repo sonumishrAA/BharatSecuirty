@@ -1,66 +1,136 @@
-<div class="home">
-    <!-- HERO -->
-    <section class="home-hero hero-dual">
-        <div class="container hero-grid">
-            <!-- LEFT CONTENT -->
-            <div class="hero-left">
-                <span class="hero-line"></span>
+<main class="blog-home">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-grid">
+                <!-- Left: Title + Subscribe -->
+                <div class="hero-intro">
+                    <span class="hero-badge">BharatSecurity Blog</span>
+                    <h1 class="hero-title">The latest from<br>BharatSecurity</h1>
 
-                <div>
-                    <h1>Bharat<span>Security</span></h1>
-                    <p class="hero-sub">
-                        Cyber awareness, OSINT intelligence & scam protection
-                    </p>
-
-                    <div class="hero-icons-row">
-                        <span>🛡️ Cyber Safety</span>
-                        <span>🔍 OSINT</span>
-                        <span>⚠️ Scam Alerts</span>
+                    <div class="subscribe-form">
+                        <p class="subscribe-label">Subscribe to our Blog</p>
+                        <form (submit)="subscribe($event)">
+                            <input type="email" [(ngModel)]="email" name="email" placeholder="your@email.com"
+                                required />
+                            <button type="submit" class="btn-submit">
+                                Submit
+                                <span class="material-icons-round">arrow_forward</span>
+                            </button>
+                        </form>
+                        <p class="subscribe-note">
+                            We'll handle your data in line with our
+                            <a routerLink="/privacy">Privacy Policy</a>.
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            <!-- RIGHT VISUAL -->
-            <div class="hero-right">
-                <div class="hero-card">
-                    <span>🛡️</span>
-                    <span>Protect</span>
-                </div>
+                <!-- Right: Featured Post -->
+                <!-- Right: Featured Post Slider -->
+                @if (featuredPosts().length > 0) {
+                <div class="featured-slider">
+                    @for (post of featuredPosts(); track post.id; let i = $index) {
+                    <a [routerLink]="['/blog', post.slug]" class="featured-card"
+                        [class.active]="i === currentFeaturedIndex()"
+                        [style.display]="i === currentFeaturedIndex() ? 'block' : 'none'">
+                        <div class="featured-image">
+                            @if (post.cover_image_url) {
+                            <img [src]="post.cover_image_url" [alt]="post.title" />
+                            }
+                            <div class="featured-overlay"></div>
+                        </div>
+                        <div class="featured-content">
+                            <span class="featured-tag" [attr.data-category]="post.category">
+                                {{ formatCategory(post.category) }}
+                            </span>
+                            <h2 class="featured-title">{{ post.title }}</h2>
+                            <p class="featured-date">{{ post.created_at | date:'MMMM d, yyyy' }}</p>
+                            <p class="featured-excerpt">{{ post.excerpt }}</p>
+                            <span class="featured-cta">
+                                Read Now
+                                <span class="material-icons-round">arrow_forward</span>
+                            </span>
+                        </div>
+                    </a>
+                    }
 
-                <div class="hero-card">
-                    <span>🔍</span>
-                    <span>Investigate</span>
+                    <!-- Slider Controls -->
+                    <div class="slider-controls">
+                        <button class="control-btn prev"
+                            (click)="prevFeatured(); $event.stopPropagation(); $event.preventDefault()">
+                            <span class="material-icons-round">chevron_left</span>
+                        </button>
+                        <div class="slider-dots">
+                            @for (post of featuredPosts(); track post.id; let i = $index) {
+                            <button class="dot" [class.active]="i === currentFeaturedIndex()"
+                                (click)="setFeatured(i); $event.stopPropagation(); $event.preventDefault()"></button>
+                            }
+                        </div>
+                        <button class="control-btn next"
+                            (click)="nextFeatured(); $event.stopPropagation(); $event.preventDefault()">
+                            <span class="material-icons-round">chevron_right</span>
+                        </button>
+                    </div>
                 </div>
-
-                <div class="hero-card">
-                    <span>⚠️</span>
-                    <span>Detect</span>
-                </div>
+                }
             </div>
         </div>
     </section>
 
-    <!-- SECTIONS -->
-    @for (sec of sections; track sec.type) {
-    <app-horizontal-section [title]="sec.title" [type]="sec.type"></app-horizontal-section>
-    }
-
-    <!-- NEWSLETTER -->
-    <section class="newsletter-section">
+    <!-- Category Tabs -->
+    <section class="category-tabs">
         <div class="container">
-            <div class="newsletter-card">
-                <div class="newsletter-content">
-                    <span class="newsletter-icon">📬</span>
-                    <h3>Stay Updated</h3>
-                    <p>Get the latest cyber security insights, OSINT guides, and scam alerts delivered to your inbox.
-                    </p>
-                </div>
-                <form class="newsletter-form" (ngSubmit)="subscribeNewsletter()">
-                    <input type="email" placeholder="Enter your email" [(ngModel)]="newsletterEmail" name="email"
-                        required />
-                    <button type="submit">Subscribe</button>
-                </form>
+            <div class="tabs-scroll">
+                <button class="tab" [class.active]="activeCategory() === 'all'" (click)="filterCategory('all')">
+                    All
+                </button>
+                @for (cat of categories; track cat.value) {
+                <button class="tab" [class.active]="activeCategory() === cat.value" [style.--cat-color]="cat.color"
+                    (click)="filterCategory(cat.value)">
+                    {{ cat.label }}
+                </button>
+                }
             </div>
         </div>
     </section>
-</div>
+
+    <!-- Blog Grid -->
+    <section class="blog-grid-section">
+        <div class="container">
+            @if (loading()) {
+            <div class="blog-grid">
+                @for (i of [1,2,3]; track i) {
+                <app-skeleton></app-skeleton>
+                }
+            </div>
+            } @else {
+            <div class="blog-grid">
+                @for (post of filteredPosts(); track post.id) {
+                <app-blog-card [post]="post"></app-blog-card>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages() > 1) {
+            <div class="pagination">
+                <button class="page-btn prev" [disabled]="currentPage() === 1" (click)="prevPage()">
+                    <span class="material-icons-round">chevron_left</span>
+                    Previous
+                </button>
+
+                @for (page of pagesArray(); track page) {
+                <button class="page-btn" [class.active]="currentPage() === page" (click)="goToPage(page)">
+                    {{ page }}
+                </button>
+                }
+
+                <button class="page-btn next" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+                    Next
+                    <span class="material-icons-round">chevron_right</span>
+                </button>
+            </div>
+            }
+            }
+        </div>
+    </section>
+</main>

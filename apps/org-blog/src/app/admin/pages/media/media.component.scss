@@ -1,44 +1,106 @@
 @use '../../../../styles/variables' as *;
 
-h1 {
-    font-size: $font-2xl;
-    font-weight: 600;
-    margin-bottom: $space-xs;
+.media-page {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xl;
+}
+
+.page-header {
+    h1 {
+        display: flex;
+        align-items: center;
+        gap: $space-sm;
+        font-size: $font-2xl;
+        font-weight: 600;
+        margin-bottom: $space-xxs;
+
+        .material-icons-round {
+            font-size: 28px;
+            background: $admin-gradient-primary;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    }
+
+    .muted {
+        font-size: $font-sm;
+        color: $admin-muted;
+    }
+}
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-sm;
+    padding: $space-2xl;
+    color: $admin-muted;
+    font-size: $font-md;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid $admin-border;
+    border-top-color: $admin-primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
 .section {
-    margin-top: $space-xl;
-
     h3 {
+        display: flex;
+        align-items: center;
+        gap: $space-sm;
         font-size: $font-lg;
+        font-weight: 600;
         margin-bottom: $space-md;
+        color: $admin-text;
+
+        .material-icons-round {
+            font-size: 20px;
+            color: $admin-primary;
+        }
+    }
+
+    .muted.empty {
+        padding: $space-xl;
+        text-align: center;
+        background: white;
+        border-radius: $radius-lg;
+        border: 1px solid $admin-border;
     }
 }
 
 .media-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: $space-md;
 }
 
 .media-card {
     background: white;
-    border: 1px solid $admin-border;
     border-radius: $radius-lg;
-    padding: $space-sm;
-    display: flex;
-    flex-direction: column;
-    gap: $space-sm;
+    border: 1px solid $admin-border;
+    overflow: hidden;
+    transition: all $transition-fast;
+
+    &:hover {
+        border-color: $admin-primary;
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
+    }
 }
 
 .media-thumb {
-    height: 120px;
-    border-radius: $radius-md;
-    overflow: hidden;
-    background: #f1f5f9;
+    height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: $admin-panel;
+    overflow: hidden;
 
     img {
         width: 100%;
@@ -48,30 +110,71 @@ h1 {
 
     &.file {
         flex-direction: column;
-        gap: $space-xs;
+        gap: $space-sm;
+        padding: $space-md;
+    }
 
-        span {
-            font-size: 32px;
-        }
+    .file-icon {
+        font-size: 40px;
+        color: $admin-muted;
+    }
 
-        small {
-            font-size: $font-xs;
-            color: $admin-muted;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            max-width: 100%;
-            padding: 0 $space-xs;
-        }
+    small {
+        font-size: $font-xs;
+        color: $admin-muted;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 100%;
+        text-align: center;
     }
 }
 
 .media-actions {
     display: flex;
-    justify-content: space-between;
+    gap: $space-xs;
+    padding: $space-sm;
+    background: white;
+    border-top: 1px solid $admin-border;
+    justify-content: center;
+}
 
-    button {
-        padding: $space-xs $space-sm;
-        font-size: 14px;
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-md;
+    border: none;
+    background: $admin-panel;
+    color: $admin-muted;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    .material-icons-round {
+        font-size: 18px;
+    }
+
+    &:hover {
+        background: $admin-primary-light;
+        color: $admin-primary;
+    }
+
+    &.danger:hover {
+        background: $admin-danger-light;
+        color: $admin-danger;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: $breakpoint-md) {
+    .media-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }

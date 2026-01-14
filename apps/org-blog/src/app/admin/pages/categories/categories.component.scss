@@ -1,54 +1,180 @@
 @use '../../../../styles/variables' as *;
 
-h1 {
-    font-size: $font-2xl;
-    font-weight: 600;
-    margin-bottom: $space-xs;
+.categories-page {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xl;
 }
 
-.card {
+.page-header {
+    h1 {
+        display: flex;
+        align-items: center;
+        gap: $space-sm;
+        font-size: $font-2xl;
+        font-weight: 600;
+        margin-bottom: $space-xxs;
+
+        .material-icons-round {
+            font-size: 28px;
+            background: $admin-gradient-primary;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    }
+
+    .muted {
+        font-size: $font-sm;
+        color: $admin-muted;
+    }
+}
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-sm;
+    padding: $space-2xl;
+    color: $admin-muted;
+    font-size: $font-md;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid $admin-border;
+    border-top-color: $admin-primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: $space-lg;
+}
+
+.category-card {
     background: white;
     border: 1px solid $admin-border;
-    border-radius: $radius-lg;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-card;
+    overflow: hidden;
+    transition: all $transition-fast;
+
+    &:hover {
+        border-color: $admin-primary;
+        box-shadow: $shadow-md;
+    }
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
     padding: $space-lg;
-    margin-top: $space-lg;
+    background: $admin-panel;
+    border-bottom: 1px solid $admin-border;
+
+    .category-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $admin-gradient-primary;
+        color: white;
+        border-radius: $radius-lg;
+        font-size: 20px;
+    }
 
     h3 {
+        flex: 1;
         font-size: $font-lg;
-        margin-bottom: $space-md;
+        font-weight: 600;
+        color: $admin-text;
+        text-transform: capitalize;
+    }
 
-        small {
-            color: $admin-muted;
-            font-weight: normal;
-        }
+    .count {
+        background: $admin-primary-light;
+        color: $admin-primary;
+        padding: $space-xxs $space-sm;
+        border-radius: $radius-full;
+        font-size: $font-xs;
+        font-weight: 600;
     }
 }
 
 .category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+
     li {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        padding: $space-sm 0;
+        padding: $space-md $space-lg;
         border-bottom: 1px solid $admin-border;
+        transition: background $transition-fast;
 
         &:last-child {
             border-bottom: none;
         }
+
+        &:hover {
+            background: rgba($admin-primary, 0.02);
+        }
+
+        &.empty {
+            justify-content: center;
+            color: $admin-muted;
+            font-size: $font-sm;
+            padding: $space-xl;
+        }
     }
 }
 
-.badge {
-    padding: $space-xxs $space-sm;
-    border-radius: $radius-full;
-    font-size: $font-xs;
+.post-title {
+    font-size: $font-md;
+    color: $admin-text;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .material-icons-round {
+        font-size: 18px;
+    }
 
     &.published {
-        background: #dcfce7;
-        color: #166534;
+        color: $admin-success;
     }
 
     &.draft {
-        background: #fee2e2;
-        color: #991b1b;
+        color: $admin-warning;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: $breakpoint-md) {
+    .categories-grid {
+        grid-template-columns: 1fr;
     }
 }

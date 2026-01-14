@@ -12,6 +12,7 @@ import contentRoutes from './routes/content.routes.js';
 import { businessRoutes } from './routes/business.routes.js';
 import clientRoutes from './routes/client.routes.js';
 import { systemRoutes } from './routes/system.routes.js';
+import subscribersRoutes from './routes/subscribers.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -69,6 +70,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/business', businessRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/admin/system', systemRoutes);
+app.use('/api/subscribers', subscribersRoutes);
 app.use('/api', contentRoutes);
 
 /**

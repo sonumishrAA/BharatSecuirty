@@ -1,41 +1,51 @@
-<div class="admin-layout">
-    <!-- SIDEBAR -->
+<div class="admin-layout" [class.editor-mode]="isEditorRoute">
+    <!-- SIDEBAR - Hidden on editor route -->
+    @if (!isEditorRoute) {
     <aside class="admin-sidebar">
-        <h3>CMS</h3>
+        <div class="sidebar-header">
+            <span class="material-icons-round logo-icon">shield</span>
+            <span class="logo-text">CMS</span>
+        </div>
 
         <nav class="admin-nav">
             <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-                <span class="icon">📊</span>
+                <span class="material-icons-round">dashboard</span>
                 <span>Dashboard</span>
             </a>
 
             <a routerLink="/admin/editor" routerLinkActive="active">
-                <span class="icon">📝</span>
+                <span class="material-icons-round">edit_note</span>
                 <span>Editor</span>
             </a>
 
             <a routerLink="/admin/categories" routerLinkActive="active">
-                <span class="icon">📁</span>
+                <span class="material-icons-round">folder</span>
                 <span>Categories</span>
             </a>
 
             <a routerLink="/admin/media" routerLinkActive="active">
-                <span class="icon">🖼</span>
+                <span class="material-icons-round">photo_library</span>
                 <span>Media</span>
+            </a>
+
+            <a routerLink="/admin/subscribers" routerLinkActive="active">
+                <span class="material-icons-round">mark_email_read</span>
+                <span>Subscribers</span>
             </a>
         </nav>
 
         <!-- FOOTER -->
         <div class="sidebar-footer">
-            <button class="danger" (click)="logout()">
-                <span class="icon">🚪</span>
+            <button class="btn-logout" (click)="logout()">
+                <span class="material-icons-round">logout</span>
                 Logout
             </button>
         </div>
     </aside>
+    }
 
     <!-- MAIN -->
-    <main class="admin-main">
+    <main class="admin-main" [class.full-width]="isEditorRoute">
         <div class="admin-page">
             <router-outlet></router-outlet>
         </div>

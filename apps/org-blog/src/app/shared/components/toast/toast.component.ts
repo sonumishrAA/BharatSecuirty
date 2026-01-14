@@ -9,16 +9,18 @@ import { ToastService } from '@core/services/toast.service';
         <div class="toast-container">
             @for (toast of toastService.toasts(); track toast.id) {
                 <div class="toast" [class]="toast.type" (click)="toastService.remove(toast.id)">
-                    <span class="toast-icon">
+                    <span class="toast-icon material-icons-round">
                         @switch (toast.type) {
-                            @case ('success') { ✓ }
-                            @case ('error') { ✕ }
-                            @case ('warning') { ⚠ }
-                            @case ('info') { ℹ }
+                            @case ('success') { check_circle }
+                            @case ('error') { error }
+                            @case ('warning') { warning }
+                            @case ('info') { info }
                         }
                     </span>
                     <span class="toast-message">{{ toast.message }}</span>
-                    <button class="toast-close">×</button>
+                    <button class="toast-close">
+                        <span class="material-icons-round">close</span>
+                    </button>
                 </div>
             }
         </div>
@@ -26,82 +28,92 @@ import { ToastService } from '@core/services/toast.service';
     styles: [`
         .toast-container {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             z-index: 99999;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-width: 380px;
+            gap: 12px;
+            max-width: 400px;
         }
 
         .toast {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 18px;
+            padding: 16px 20px;
             border-radius: 12px;
-            background: #1e293b;
-            color: white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: white;
+            color: #0f172a;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             border-left: 4px solid;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .toast:hover {
+            transform: translateX(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
         .toast.success {
-            border-color: #22c55e;
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), #1e293b);
+            border-color: #10b981;
         }
+        .toast.success .toast-icon { color: #10b981; }
 
         .toast.error {
             border-color: #ef4444;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), #1e293b);
         }
+        .toast.error .toast-icon { color: #ef4444; }
 
         .toast.warning {
             border-color: #f59e0b;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), #1e293b);
         }
+        .toast.warning .toast-icon { color: #f59e0b; }
 
         .toast.info {
-            border-color: #22d3ee;
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), #1e293b);
+            border-color: #3b82f6;
         }
+        .toast.info .toast-icon { color: #3b82f6; }
 
         .toast-icon {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 22px;
+            flex-shrink: 0;
         }
-
-        .toast.success .toast-icon { color: #22c55e; }
-        .toast.error .toast-icon { color: #ef4444; }
-        .toast.warning .toast-icon { color: #f59e0b; }
-        .toast.info .toast-icon { color: #22d3ee; }
 
         .toast-message {
             flex: 1;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.5;
+            font-weight: 500;
         }
 
         .toast-close {
-            background: none;
+            background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 20px;
+            color: #94a3b8;
             cursor: pointer;
-            padding: 0 4px;
-            line-height: 1;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+        
+        .toast-close .material-icons-round {
+            font-size: 18px;
         }
 
         .toast-close:hover {
-            color: white;
+            background: #f1f5f9;
+            color: #0f172a;
         }
 
         @keyframes slideIn {
             from {
-                transform: translateX(100%);
+                transform: translateX(120%);
                 opacity: 0;
             }
             to {

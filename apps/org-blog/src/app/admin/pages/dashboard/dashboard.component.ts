@@ -1,6 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { PostsService } from '@core/services/posts.service';
+import { ConfirmDialogService } from '@core/services/confirm-dialog.service';
+import { ToastService } from '@core/services/toast.service';
 import { Post } from '@shared/models/post.model';
 
 @Component({
@@ -14,9 +16,12 @@ export class DashboardComponent implements OnInit {
     posts = signal<Post[]>([]);
     loading = signal(true);
 
+    private confirmService = inject(ConfirmDialogService);
+    private toast = inject(ToastService);
+
     constructor(
         private postsService: PostsService,
-        private router: Router
+        public router: Router
     ) { }
 
     ngOnInit(): void {
@@ -49,11 +54,27 @@ export class DashboardComponent implements OnInit {
         this.postsService.toggleStatus(post.id).subscribe();
     }
 
-    deletePost(id: string): void {
-        if (!confirm('Delete this post permanently?')) return;
+    async deletePost(id: string): Promise<void> {
+        const confirmed = await this.confirmService.confirm({
+            title: 'Delete Post',
+            message: 'Are you sure you want to delete this post? This action cannot be undone.',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'danger'
+        });
+
+        if (!confirmed) return;
 
         this.posts.update(posts => posts.filter(p => p.id !== id));
-        this.postsService.delete(id).subscribe();
+        this.postsService.delete(id).subscribe({
+            next: () => {
+                this.toast.success('Post deleted successfully');
+            },
+            error: () => {
+                this.toast.error('Failed to delete post');
+                this.fetchPosts(); // Refresh on error
+            }
+        });
     }
 
     editPost(id: string): void {

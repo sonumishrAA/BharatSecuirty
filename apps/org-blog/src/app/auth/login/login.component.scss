@@ -1,90 +1,335 @@
 @use '../../../styles/variables' as *;
 
 .login-wrap {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: $admin-panel;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
 }
 
+// ===== ANIMATED BACKGROUND =====
+.bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+    animation: gradientPulse 8s ease-in-out infinite;
+}
+
+.bg-shapes {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+
+    &.shape-1 {
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        top: -100px;
+        right: -100px;
+        animation: float 15s ease-in-out infinite;
+    }
+
+    &.shape-2 {
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        bottom: -50px;
+        left: -50px;
+        animation: float 12s ease-in-out infinite reverse;
+    }
+
+    &.shape-3 {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 6s ease-in-out infinite;
+    }
+}
+
+// ===== LOGIN CARD =====
 .login-card {
-    width: 360px;
-    background: white;
-    padding: $space-xl;
-    border-radius: $radius-lg;
-    border: 1px solid $admin-border;
-    box-shadow: $shadow-md;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 420px;
+    margin: $space-lg;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: $space-2xl;
+    border-radius: $radius-2xl;
+    box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     gap: $space-md;
+    animation: cardSlideUp 0.6s $ease;
+}
 
-    h1 {
-        font-size: 22px;
-        margin-bottom: $space-xxs;
-    }
+// ===== LOGO =====
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-sm;
+    margin-bottom: $space-sm;
+}
 
-    .muted {
-        font-size: $font-sm;
-        color: $admin-muted;
-    }
+.logo-icon {
+    font-size: 36px;
+    background: $admin-gradient-primary;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
-    .error {
-        color: $admin-danger;
-        font-size: $font-sm;
+.logo-text {
+    font-size: $font-2xl;
+    font-weight: 700;
+    color: $admin-text;
+
+    span {
+        background: $admin-gradient-primary;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 }
 
+h1 {
+    font-size: $font-xl;
+    font-weight: 600;
+    color: $admin-text;
+    text-align: center;
+    margin: 0;
+}
+
+.muted {
+    font-size: $font-sm;
+    color: $admin-muted;
+    text-align: center;
+    margin-bottom: $space-sm;
+}
+
+// ===== FORM GROUPS =====
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: $space-xxs;
+    gap: $space-xs;
 
     label {
-        font-size: $font-xs;
+        font-size: $font-sm;
+        font-weight: 500;
         color: $admin-muted;
+        display: flex;
+        align-items: center;
+        gap: $space-xs;
+
+        .material-icons-round {
+            font-size: 16px;
+            color: $admin-primary;
+        }
     }
 
     input {
         width: 100%;
-        padding: $space-sm $space-sm;
-        border-radius: $radius-md;
-        border: 1px solid $admin-border;
+        padding: $space-md;
+        border-radius: $radius-lg;
+        border: 2px solid $admin-border;
         font-size: $font-md;
         background: white;
+        transition: all $transition-fast;
+
+        &::placeholder {
+            color: #cbd5e1;
+        }
 
         &:focus {
             outline: none;
             border-color: $admin-primary;
+            box-shadow: 0 0 0 4px $admin-primary-light;
         }
     }
 }
 
-button {
-    display: inline-flex;
+// ===== ERROR BOX =====
+.error-box {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    padding: $space-md;
+    background: $admin-danger-light;
+    border-radius: $radius-md;
+    color: $admin-danger;
+    font-size: $font-sm;
+    font-weight: 500;
+    animation: shake 0.4s ease;
+
+    .material-icons-round {
+        font-size: 18px;
+    }
+}
+
+// ===== BUTTON =====
+.btn-primary {
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: $space-xs;
-    padding: $space-sm $space-md;
-    border-radius: $radius-md;
-    border: 1px solid $admin-border;
-    background: white;
+    gap: $space-sm;
+    padding: $space-md $space-lg;
+    border-radius: $radius-lg;
+    border: none;
+    background: $admin-gradient-primary;
+    color: white;
     font-size: $font-md;
+    font-weight: 600;
     cursor: pointer;
-    transition: background $transition-fast, box-shadow $transition-fast;
+    transition: all $transition-normal;
+    margin-top: $space-sm;
 
-    &.primary {
-        background: $admin-primary;
-        color: white;
-        border-color: $admin-primary;
+    .material-icons-round {
+        font-size: 20px;
+    }
 
-        &:hover {
-            box-shadow: 0 4px 14px rgba($admin-primary, 0.25);
-        }
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-primary;
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
     }
 
     &:disabled {
-        opacity: 0.6;
+        opacity: 0.7;
         cursor: not-allowed;
+    }
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.footer-text {
+    font-size: $font-xs;
+    color: $admin-muted;
+    text-align: center;
+    margin-top: $space-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-xxs;
+
+    &::before {
+        content: '🔒';
+        font-size: 12px;
+    }
+}
+
+// ===== ANIMATIONS =====
+@keyframes gradientPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-30px) rotate(5deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+@keyframes cardSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-8px);
+    }
+
+    75% {
+        transform: translateX(8px);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: $breakpoint-sm) {
+    .login-card {
+        padding: $space-xl;
+        margin: $space-md;
+    }
+
+    .logo-text {
+        font-size: $font-xl;
     }
 }

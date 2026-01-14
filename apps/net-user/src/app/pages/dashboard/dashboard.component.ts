@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ClientService, Booking } from '../../core/services/client.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments';
 
 interface Message {
     id: string;

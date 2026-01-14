@@ -1,17 +1,28 @@
-<div>
-    <h1>Media Library</h1>
-    <p class="muted">All uploaded media (auto detected)</p>
+<div class="media-page">
+    <div class="page-header">
+        <h1>
+            <span class="material-icons-round">photo_library</span>
+            Media Library
+        </h1>
+        <p class="muted">All uploaded media files</p>
+    </div>
 
     @if (loading()) {
-    <p class="muted">Loading…</p>
+    <div class="loading-state">
+        <span class="spinner"></span>
+        <span>Loading media...</span>
+    </div>
     }
 
     <!-- COVER IMAGES -->
     <div class="section">
-        <h3>🖼 Cover Images</h3>
+        <h3>
+            <span class="material-icons-round">image</span>
+            Cover Images
+        </h3>
 
         @if (media().covers.length === 0) {
-        <p class="muted">No items available</p>
+        <p class="muted empty">No cover images uploaded yet</p>
         }
 
         <div class="media-grid">
@@ -21,8 +32,12 @@
                     <img [src]="file.url" alt="" />
                 </div>
                 <div class="media-actions">
-                    <button (click)="copyUrl(file.url)">📋</button>
-                    <button class="danger" (click)="deleteFile(file.name, 'covers')">🗑️</button>
+                    <button class="btn-icon" (click)="copyUrl(file.url)" title="Copy URL">
+                        <span class="material-icons-round">content_copy</span>
+                    </button>
+                    <button class="btn-icon danger" (click)="deleteFile(file.name, 'covers')" title="Delete">
+                        <span class="material-icons-round">delete</span>
+                    </button>
                 </div>
             </div>
             }
@@ -31,22 +46,29 @@
 
     <!-- FILES -->
     <div class="section">
-        <h3>📎 Files / PDFs</h3>
+        <h3>
+            <span class="material-icons-round">attach_file</span>
+            Files / Documents
+        </h3>
 
         @if (media().files.length === 0) {
-        <p class="muted">No items available</p>
+        <p class="muted empty">No files uploaded yet</p>
         }
 
         <div class="media-grid">
             @for (file of media().files; track file.name) {
-            <div class="media-card">
-                <div class="media-thumb file">
-                    <span>📄</span>
+            <div class="media-card file">
+                <div class="media-thumb">
+                    <span class="material-icons-round file-icon">description</span>
                     <small>{{ file.name }}</small>
                 </div>
                 <div class="media-actions">
-                    <button (click)="copyUrl(file.url)">📋</button>
-                    <button class="danger" (click)="deleteFile(file.name, 'files')">🗑️</button>
+                    <button class="btn-icon" (click)="copyUrl(file.url)" title="Copy URL">
+                        <span class="material-icons-round">content_copy</span>
+                    </button>
+                    <button class="btn-icon danger" (click)="deleteFile(file.name, 'files')" title="Delete">
+                        <span class="material-icons-round">delete</span>
+                    </button>
                 </div>
             </div>
             }

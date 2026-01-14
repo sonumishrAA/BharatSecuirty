@@ -1,0 +1,143 @@
+@use '../../../../styles/variables' as *;
+
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.dialog-box {
+    background: white;
+    border-radius: $radius-xl;
+    padding: $space-xl;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: $shadow-xl;
+    animation: scaleIn 0.25s $ease-bounce;
+}
+
+.dialog-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto $space-md;
+
+    .material-icons-round {
+        font-size: 32px;
+    }
+
+    .danger & {
+        background: $admin-danger-light;
+        color: $admin-danger;
+    }
+
+    .warning & {
+        background: $admin-warning-light;
+        color: $admin-warning;
+    }
+
+    .info & {
+        background: $admin-info-light;
+        color: $admin-info;
+    }
+}
+
+.dialog-title {
+    font-size: $font-xl;
+    font-weight: 600;
+    color: $admin-text;
+    margin-bottom: $space-sm;
+}
+
+.dialog-message {
+    font-size: $font-md;
+    color: $admin-muted;
+    margin-bottom: $space-xl;
+    line-height: 1.5;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: $space-sm;
+    justify-content: center;
+
+    button {
+        padding: $space-sm $space-lg;
+        border-radius: $radius-md;
+        font-size: $font-md;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all $transition-fast;
+        border: none;
+    }
+
+    .btn-cancel {
+        background: $admin-panel;
+        color: $admin-muted;
+
+        &:hover {
+            background: darken($admin-panel, 5%);
+        }
+    }
+
+    .btn-confirm {
+        color: white;
+
+        &.danger {
+            background: $admin-danger;
+
+            &:hover {
+                background: darken($admin-danger, 8%);
+                box-shadow: 0 4px 12px rgba($admin-danger, 0.4);
+            }
+        }
+
+        &.warning {
+            background: $admin-warning;
+
+            &:hover {
+                background: darken($admin-warning, 8%);
+            }
+        }
+
+        &.info {
+            background: $admin-info;
+
+            &:hover {
+                background: darken($admin-info, 8%);
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

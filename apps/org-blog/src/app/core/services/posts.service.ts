@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Post, PostDto, PostCategory, PostStatus } from '@shared/models/post.model';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments';
 
 export interface PostQueryParams {
     status?: PostStatus;
@@ -86,9 +86,6 @@ export class PostsService {
         return this.http.patch<Post>(`${this.API_URL}/${id}/status`, {});
     }
 
-    /**
-     * Get published posts for public site
-     */
     getPublished(category?: PostCategory, limit = 10): Observable<Post[]> {
         return this.getAll({
             status: 'published',
@@ -97,5 +94,12 @@ export class PostsService {
             orderBy: 'created_at',
             order: 'desc'
         });
+    }
+
+    /**
+     * Subscribe to newsletter
+     */
+    subscribe(email: string): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/subscribers`, { email });
     }
 }

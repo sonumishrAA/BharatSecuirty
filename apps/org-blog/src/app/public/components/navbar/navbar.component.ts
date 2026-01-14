@@ -1,6 +1,7 @@
-import { Component, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal, HostListener, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import gsap from 'gsap';
+import { BusinessService, Service } from '@core/services/business.service';
+import { environment } from '@environments';
 
 @Component({
     selector: 'app-navbar',
@@ -9,12 +10,28 @@ import gsap from 'gsap';
     templateUrl: './navbar.component.html',
     styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
     open = signal(false);
     scrolled = signal(false);
+    services = signal<Service[]>([]);
 
-    @ViewChild('navLinks') navLinksRef!: ElementRef;
-    private tl: gsap.core.Timeline | null = null;
+    // Environment links
+    businessUrl = environment.businessUrl;
+
+    private businessService = inject(BusinessService);
+
+    ngOnInit(): void {
+        this.fetchServices();
+    }
+
+    fetchServices(): void {
+        this.businessService.getServices().subscribe({
+            next: (data) => {
+                this.services.set(data);
+            },
+            error: (err) => console.error('Failed to load services', err)
+        });
+    }
 
     @HostListener('window:scroll', [])
     onScroll(): void {
@@ -23,70 +40,24 @@ export class NavbarComponent {
 
     @HostListener('window:resize', [])
     onResize(): void {
-        if (window.innerWidth > 768 && this.open()) {
-            this.closeMenu();
-            gsap.set(this.navLinksRef.nativeElement, { clearProps: 'all' });
+        if (window.innerWidth > 1024 && this.open()) {
+            this.open.set(false);
         }
     }
 
     toggleMenu(): void {
-        if (this.tl && this.tl.isActive()) return;
-
         this.open.update(v => !v);
-        const isOpen = this.open();
-        const nav = this.navLinksRef.nativeElement;
-        const links = nav.querySelectorAll('a');
 
-        if (isOpen) {
-            // Open Animation
-            this.tl = gsap.timeline();
-
-            this.tl.set(nav, {
-                height: 0,
-                display: 'flex',
-                opacity: 0,
-                padding: 0
-            })
-                .to(nav, {
-                    height: 'auto',
-                    duration: 0.4,
-                    padding: '24px',
-                    opacity: 1,
-                    ease: 'power2.out'
-                })
-                .fromTo(links,
-                    { y: -20, opacity: 0 },
-                    { y: 0, opacity: 1, stagger: 0.05, duration: 0.3, ease: 'back.out(1.7)' },
-                    '-=0.2'
-                );
+        // Prevent body scroll when menu is open
+        if (this.open()) {
+            document.body.style.overflow = 'hidden';
         } else {
-            // Close Animation
-            this.tl = gsap.timeline({
-                onComplete: () => {
-                    gsap.set(nav, { clearProps: 'all' });
-                }
-            });
-
-            this.tl.to(links, {
-                y: -10,
-                opacity: 0,
-                stagger: 0.03,
-                duration: 0.2,
-                ease: 'power2.in'
-            })
-                .to(nav, {
-                    height: 0,
-                    opacity: 0,
-                    padding: 0,
-                    duration: 0.3,
-                    ease: 'power2.in'
-                }, '-=0.1');
+            document.body.style.overflow = '';
         }
     }
 
     closeMenu(): void {
-        if (this.open()) {
-            this.toggleMenu();
-        }
+        this.open.set(false);
+        document.body.style.overflow = '';
     }
 }

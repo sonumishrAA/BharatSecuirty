@@ -2,6 +2,12 @@ import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layout/layout.component';
 
 export const ADMIN_ROUTES: Routes = [
+    // Preview route WITHOUT layout (clean preview page)
+    {
+        path: 'preview',
+        loadComponent: () => import('./pages/preview/post-preview.component').then(m => m.PostPreviewComponent)
+    },
+    // Main admin routes with layout
     {
         path: '',
         component: AdminLayoutComponent,
@@ -25,6 +31,10 @@ export const ADMIN_ROUTES: Routes = [
             {
                 path: 'media',
                 loadComponent: () => import('./pages/media/media.component').then(m => m.MediaComponent)
+            },
+            {
+                path: 'subscribers',
+                loadComponent: () => import('./pages/subscribers/subscribers.component').then(m => m.SubscribersComponent)
             }
         ]
     }

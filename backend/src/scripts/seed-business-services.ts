@@ -92,7 +92,7 @@ const detailedServices = [
         ]
     },
     {
-        title: 'OSINT',
+        title: 'OSINT Investigations',
         subtitle: 'Know what the internet knows about you',
         description: 'Open Source Intelligence gathering to uncover public exposure, data leaks, and potential threat vectors targeting your organization.',
         icon: '🕵️',
@@ -171,7 +171,7 @@ const detailedServices = [
         ]
     },
     {
-        title: 'Training',
+        title: 'Awareness Training',
         subtitle: 'Build your human firewall',
         description: 'Empower your team with cybersecurity awareness and technical training to recognize and stop attacks.',
         icon: '🎓',
@@ -212,13 +212,14 @@ const detailedServices = [
 
 async function seedDetailedServices() {
     console.log('Seeding Detailed Business Services (All 5)...');
-    console.log('Clearing existing entries...');
+    console.log('Clearing ALL existing entries...');
+    await query('DELETE FROM business_services');
 
     for (const s of detailedServices) {
         const slug = s.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-        // Delete existing to update with new schema
-        await query('DELETE FROM business_services WHERE slug = $1', [slug]);
+        // Global clear moved to start of function
+        // await query('DELETE FROM business_services WHERE slug = $1', [slug]);
 
         const id = uuidv4();
         await query(

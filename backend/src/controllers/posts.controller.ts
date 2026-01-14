@@ -3,13 +3,54 @@ import { postsService } from '../services/posts.service.js';
 import type { CreatePostDto, UpdatePostDto, PostQueryParams } from '../models/Post.js';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 /**
- * Helper to attach full URL to a post
+ * Helper to sanitize URLs (replace localhost with actual BASE_URL)
  */
-const attachUrl = (post: any) => ({
+const sanitizeUrl = (url: string | null): string | null => {
+    if (!url) return null;
+    // Replace http://localhost:3000 or http://localhost:8080 with environment BASE_URL
+    return url.replace(/http:\/\/localhost:\d+/g, BASE_URL);
+};
+
+/**
+ * Recursive function to sanitize content JSON
+ */
+const sanitizeContent = (content: any): any => {
+    if (!content) return content;
+
+    if (Array.isArray(content)) {
+        return content.map(item => sanitizeContent(item));
+    }
+
+    if (typeof content === 'object' && content !== null) {
+        const sanitized: any = { ...content };
+
+        // If this is an image node with a src
+        if (sanitized.type === 'image' && sanitized.attrs && sanitized.attrs.src) {
+            sanitized.attrs.src = sanitizeUrl(sanitized.attrs.src);
+        }
+
+        // Recursively check 'content' array
+        if (sanitized.content) {
+            sanitized.content = sanitizeContent(sanitized.content);
+        }
+
+        return sanitized;
+    }
+
+    return content;
+};
+
+/**
+ * Helper to attach full URL to a post and sanitize content
+ */
+const preparePost = (post: any) => ({
     ...post,
-    url: `${FRONTEND_URL}/blog/${post.slug}`
+    url: `${FRONTEND_URL}/blog/${post.slug}`,
+    cover_image_url: sanitizeUrl(post.cover_image_url),
+    content: sanitizeContent(post.content)
 });
 
 /**
@@ -32,7 +73,7 @@ export class PostsController {
             };
 
             const posts = await postsService.getAll(params);
-            const postsWithUrl = posts.map(attachUrl);
+            const postsWithUrl = posts.map(preparePost);
             res.json(postsWithUrl);
         } catch (error) {
             console.error('Get posts error:', error);
@@ -58,7 +99,7 @@ export class PostsController {
                 return;
             }
 
-            res.json(attachUrl(post));
+            res.json(preparePost(post));
         } catch (error) {
             console.error('Get post error:', error);
             res.status(500).json({
@@ -83,7 +124,7 @@ export class PostsController {
                 return;
             }
 
-            res.json(attachUrl(post));
+            res.json(preparePost(post));
         } catch (error) {
             console.error('Get post by slug error:', error);
             res.status(500).json({
@@ -109,7 +150,7 @@ export class PostsController {
             }
 
             const post = await postsService.create(dto);
-            res.status(201).json(attachUrl(post));
+            res.status(201).json(preparePost(post));
         } catch (error) {
             console.error('Create post error:', error);
             res.status(500).json({
@@ -135,7 +176,7 @@ export class PostsController {
                 return;
             }
 
-            res.json(attachUrl(post));
+            res.json(preparePost(post));
         } catch (error) {
             console.error('Update post error:', error);
             res.status(500).json({
@@ -185,7 +226,7 @@ export class PostsController {
                 return;
             }
 
-            res.json(attachUrl(post));
+            res.json(preparePost(post));
         } catch (error) {
             console.error('Toggle status error:', error);
             res.status(500).json({
@@ -206,7 +247,7 @@ export class PostsController {
             const groupedWithUrl: Record<string, any[]> = {};
 
             for (const [category, posts] of Object.entries(grouped)) {
-                groupedWithUrl[category] = posts.map(attachUrl);
+                groupedWithUrl[category] = posts.map(preparePost);
             }
 
             res.json(groupedWithUrl);

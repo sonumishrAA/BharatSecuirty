@@ -1,0 +1,79 @@
+<div class="modal-backdrop" (click)="cancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-header">
+            <h3>
+                <span class="material-icons-round">crop</span>
+                Edit Image
+            </h3>
+            <button class="close-btn" (click)="cancel()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="cropper-wrapper">
+                <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="maintainAspectRatio"
+                    [aspectRatio]="aspectRatio" [resizeToWidth]="1200" format="png" [transform]="transform"
+                    (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded($event)"
+                    (cropperReady)="cropperReady()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-toolbar">
+                <!-- Aspect Ratios -->
+                <div class="control-group">
+                    <label>Aspect Ratio</label>
+                    <div class="ratio-group">
+                        <button class="aspect-btn" [class.active]="aspectRatio === 16/9 && maintainAspectRatio"
+                            (click)="setAspectRatio(16/9)">16:9</button>
+                        <button class="aspect-btn" [class.active]="aspectRatio === 4/3 && maintainAspectRatio"
+                            (click)="setAspectRatio(4/3)">4:3</button>
+                        <button class="aspect-btn" [class.active]="aspectRatio === 1/1 && maintainAspectRatio"
+                            (click)="setAspectRatio(1/1)">1:1</button>
+                        <button class="aspect-btn" [class.active]="!maintainAspectRatio"
+                            (click)="toggleFreeStyle()">Free</button>
+                    </div>
+                </div>
+
+                <!-- Zoom -->
+                <div class="control-group">
+                    <label>Zoom</label>
+                    <div class="slider-container">
+                        <span class="material-icons-round"
+                            style="font-size: 16px; color: rgba(255,255,255,0.5)">remove</span>
+                        <input type="range" min="1" max="3" step="0.1" [value]="transform.scale"
+                            (input)="onZoomChange($event)">
+                        <span class="material-icons-round"
+                            style="font-size: 16px; color: rgba(255,255,255,0.5)">add</span>
+                        <span>{{ transform.scale }}x</span>
+                    </div>
+                </div>
+
+                <!-- Rotate -->
+                <div class="control-group">
+                    <label>Rotate</label>
+                    <div class="slider-container">
+                        <span class="material-icons-round"
+                            style="font-size: 16px; color: rgba(255,255,255,0.5)">rotate_left</span>
+                        <input type="range" min="-180" max="180" step="1" [value]="transform.rotate"
+                            (input)="onRotateChange($event)">
+                        <span class="material-icons-round"
+                            style="font-size: 16px; color: rgba(255,255,255,0.5)">rotate_right</span>
+                        <span>{{ transform.rotate }}°</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="cancel()">Cancel</button>
+            <button class="btn-confirm" (click)="confirm()" [disabled]="!croppedBlob">
+                <span class="material-icons-round">check</span>
+                Apply Changes
+            </button>
+        </div>
+    </div>
+</div>
