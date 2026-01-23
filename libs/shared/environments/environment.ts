@@ -1,12 +1,12 @@
 export const environment = {
     production: false,
-
-    // API
     apiUrl: 'http://localhost:3000/api',
+    siteUrl: 'http://localhost:4200',
 
-    // Frontend Apps (Development)
-    businessUrl: 'http://localhost:4200',
-    adminUrl: 'http://localhost:4201',
-    userPortalUrl: 'http://localhost:4202',
-    blogUrl: 'http://localhost:4203'
+    // Feature Flags
+    features: {
+        blog: true,
+        admin: true,
+        business: true
+    }
 };
