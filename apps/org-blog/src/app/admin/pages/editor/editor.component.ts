@@ -1,19 +1,30 @@
-import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef, HostListener, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TitleCasePipe } from '@angular/common';
+import { TitleCasePipe, DecimalPipe } from '@angular/common';
 import { PostsService } from '@core/services/posts.service';
 import { MediaService, MediaFile } from '@core/services/media.service';
 import { ToastService } from '@core/services/toast.service';
 import { PostDto, PostCategory, PostStatus } from '@shared/models/post.model';
+import {
+    EditorJSON,
+    FloatingItem,
+    createEmptyEditorJSON,
+    createFloatingImage,
+    CANVAS_WIDTH,
+    CANVAS_PADDING,
+    CANVAS_INNER_WIDTH
+} from '@shared/models/editor-json.model';
 import { Editor, Toolbar, NgxEditorModule } from 'ngx-editor';
 import { schema } from 'ngx-editor/schema';
-import { ImageCropperModalComponent } from '../../../shared/components/image-cropper-modal/image-cropper-modal.component';
+import { ImageCropperModalComponent, ImageUploadResult } from '../../../shared/components/image-cropper-modal/image-cropper-modal.component';
+import { FloatingImageComponent } from '../../components/floating-image/floating-image.component';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-editor',
     standalone: true,
-    imports: [FormsModule, TitleCasePipe, NgxEditorModule, ImageCropperModalComponent],
+    imports: [FormsModule, TitleCasePipe, NgxEditorModule, ImageCropperModalComponent, FloatingImageComponent],
     templateUrl: './editor.component.html',
     styleUrl: './editor.component.scss'
 })
@@ -23,35 +34,32 @@ export class EditorComponent implements OnInit, OnDestroy {
     isEdit = signal(false);
     dirty = signal(false);
     saving = signal(false);
+    autoSaving = signal(false);
+    lastSavedAt = signal<string | null>(null);
 
     // UI State
     sidebarVisible = signal(false);
     showUnsavedModal = signal(false);
 
-    // Cropper State
+    // Cropper State (for cover images)
     showCropper = false;
     imageEvent: any = '';
 
+    // Editor Image Cropper State (for canvas images)
+    showEditorImageCropper = false;
+    editorImageEvent: any = '';
+
     // Editor - initialize with proper schema
     editor!: Editor;
-    // Enhanced toolbar with more tools like Google Docs
     toolbar: Toolbar = [
-        // History
         ['undo', 'redo'],
-        // Text formatting
         ['bold', 'italic', 'underline', 'strike'],
-        // Code & Quote
         ['code', 'blockquote'],
-        // Lists
         ['ordered_list', 'bullet_list'],
-        // Headings
         [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
-        // Links & Alignment
         ['link'],
         ['align_left', 'align_center', 'align_right', 'align_justify'],
-        // Colors
         ['text_color', 'background_color'],
-        // Extra
         ['horizontal_rule'],
         ['format_clear'],
     ];
@@ -68,7 +76,20 @@ export class EditorComponent implements OnInit, OnDestroy {
     cover = '';
     content: any = { type: 'doc', content: [] };
 
-    // Categories - REMOVED case_studies
+    // ===== CANVAS EDITOR STATE =====
+    editorJson = signal<EditorJSON>(createEmptyEditorJSON());
+    floatingImages = computed(() => this.editorJson().floating);
+    selectedImageId = signal<string | null>(null);
+
+    // Canvas constants
+    readonly CANVAS_WIDTH = CANVAS_WIDTH;
+    readonly CANVAS_PADDING = CANVAS_PADDING;
+    readonly CANVAS_INNER_WIDTH = CANVAS_INNER_WIDTH;
+
+    // Autosave
+    private autosave$ = new Subject<void>();
+    private destroy$ = new Subject<void>();
+
     categories: PostCategory[] = ['blog', 'scam_alert', 'osint_guide', 'resource'];
 
     // File upload section
@@ -76,25 +97,15 @@ export class EditorComponent implements OnInit, OnDestroy {
     uploadingFile = false;
     copiedUrl = '';
 
-    // Extended color palette - More colors for better selection
     colorPresets: string[] = [
-        // Grayscale
         '#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc', '#e6e6e6', '#f2f2f2', '#ffffff',
-        // Reds
         '#330000', '#660000', '#990000', '#cc0000', '#ff0000', '#ff3333', '#ff6666', '#ff9999', '#ffcccc', '#ffe6e6',
-        // Oranges
         '#331a00', '#663300', '#994d00', '#cc6600', '#ff8000', '#ff9933', '#ffb366', '#ffcc99', '#ffe6cc',
-        // Yellows
         '#333300', '#666600', '#999900', '#cccc00', '#ffff00', '#ffff33', '#ffff66', '#ffff99', '#ffffcc',
-        // Greens
         '#003300', '#006600', '#009900', '#00cc00', '#00ff00', '#33ff33', '#66ff66', '#99ff99', '#ccffcc',
-        // Cyans
         '#003333', '#006666', '#009999', '#00cccc', '#00ffff', '#33ffff', '#66ffff', '#99ffff', '#ccffff',
-        // Blues
         '#000033', '#000066', '#000099', '#0000cc', '#0000ff', '#3333ff', '#6666ff', '#9999ff', '#ccccff',
-        // Purples
         '#330033', '#660066', '#990099', '#cc00cc', '#ff00ff', '#ff33ff', '#ff66ff', '#ff99ff', '#ffccff',
-        // Deep Forest & Terracotta (from screenshot)
         '#052e16', '#14532d', '#166534', '#15803d', '#16a34a', '#22c55e', '#4ade80', '#86efac',
         '#9a3412', '#c2410c', '#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa',
     ];
@@ -102,6 +113,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     @ViewChild('editorImageInput') editorImageInput!: ElementRef<HTMLInputElement>;
     @ViewChild('coverInput') coverInput!: ElementRef<HTMLInputElement>;
     @ViewChild('embedFileInput') embedFileInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('canvasContainer') canvasContainer!: ElementRef<HTMLDivElement>;
 
     constructor(
         private route: ActivatedRoute,
@@ -111,7 +123,6 @@ export class EditorComponent implements OnInit, OnDestroy {
         private toast: ToastService
     ) { }
 
-    // ===== UNSAVED CHANGES WARNING =====
     @HostListener('window:beforeunload', ['$event'])
     onBeforeUnload(event: BeforeUnloadEvent): void {
         if (this.dirty()) {
@@ -120,12 +131,53 @@ export class EditorComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnInit(): void {
-        // Initialize editor with the built-in schema that includes all node types
-        this.editor = new Editor({
-            schema: schema  // Use the built-in schema from ngx-editor
-        });
+    // Click on canvas background deselects image
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.floating-image') && !target.closest('.floating-toolbar')) {
+            this.selectedImageId.set(null);
+        }
+    }
 
+    // PREVENT image drops on text editor (forces use of Floating Layer)
+    @HostListener('drop', ['$event'])
+    onDrop(event: DragEvent) {
+        const target = event.target as HTMLElement;
+        // Only block drops on the ngx-editor area
+        if (target.closest('.ngx-editor-canvas') || target.closest('.NgxEditor')) {
+            const files = event.dataTransfer?.files;
+            if (files && files.length > 0) {
+                const hasImage = Array.from(files).some(f => f.type.startsWith('image/'));
+                if (hasImage) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.toast.info('Use the "Add Image" button in the toolbar to add images to the canvas.');
+                }
+            }
+        }
+    }
+
+    // PREVENT image pastes on text editor
+    @HostListener('paste', ['$event'])
+    onPaste(event: ClipboardEvent) {
+        const target = event.target as HTMLElement;
+        // Only block pastes on the ngx-editor area
+        if (target.closest('.ngx-editor-canvas') || target.closest('.NgxEditor')) {
+            const items = event.clipboardData?.items;
+            if (items) {
+                const hasImage = Array.from(items).some(item => item.type.startsWith('image/'));
+                if (hasImage) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.toast.info('Use the "Add Image" button in the toolbar to add images to the canvas.');
+                }
+            }
+        }
+    }
+
+    ngOnInit(): void {
+        this.editor = new Editor({ schema });
         this.loadMediaFiles();
 
         const id = this.route.snapshot.paramMap.get('id');
@@ -135,8 +187,15 @@ export class EditorComponent implements OnInit, OnDestroy {
             this.loadPost(id);
         }
 
-        // Show login warning on page load
         this.showLoginWarning();
+
+        // Setup autosave with debounce
+        this.autosave$
+            .pipe(
+                debounceTime(1500),
+                takeUntil(this.destroy$)
+            )
+            .subscribe(() => this.performAutosave());
     }
 
     showLoginWarning(): void {
@@ -155,21 +214,18 @@ export class EditorComponent implements OnInit, OnDestroy {
                 ];
                 this.uploadedFiles = allFiles.slice(0, 20);
             },
-            error: (err) => {
-                console.error('Failed to load media files:', err);
-            }
+            error: (err) => console.error('Failed to load media files:', err)
         });
     }
 
     ngOnDestroy(): void {
         this.editor.destroy();
+        this.destroy$.next();
+        this.destroy$.complete();
         localStorage.removeItem('admin_preview_data');
     }
 
-    toggleSidebar(): void {
-        this.sidebarVisible.update(v => !v);
-    }
-
+    // ===== LOAD POST =====
     loadPost(id: string): void {
         this.postsService.getById(id).subscribe({
             next: (post) => {
@@ -183,31 +239,82 @@ export class EditorComponent implements OnInit, OnDestroy {
                 this.status = post.status;
                 this.cover = post.cover_image_url || '';
 
-                // Sanitize content to fix node type naming issues
-                try {
-                    this.content = this.sanitizeContent(post.content) || { type: 'doc', content: [] };
-                } catch (e) {
-                    console.error('Content sanitization error:', e);
+                // Load editor_json if available, otherwise migrate from content
+                // Load editor_json if available, otherwise migrate from content
+                // Detect meaningful legacy content
+                let dbLegacyContent = post.content;
+                if (typeof dbLegacyContent === 'string') {
+                    try { dbLegacyContent = JSON.parse(dbLegacyContent); } catch (e) { console.error('Legacy parse error', e); }
+                }
+                const hasLegacyData = (dbLegacyContent?.content?.length || 0) > 0;
+
+                // Detect meaningful editor_json content
+                // Check if flow content (array) has items
+                const hasEditorJsonData = (post.editor_json?.flow?.content?.length || 0) > 0;
+
+                // Decision: Use editor_json if it exists AND (it has data OR legacy is empty)
+                // If only legacy has data (migration failed case), prefer legacy.
+                const preferEditorJson = !!post.editor_json && (hasEditorJsonData || !hasLegacyData);
+
+                if (preferEditorJson && post.editor_json) {
+                    // New Format
+                    this.editorJson.set(post.editor_json);
+
+                    // Handle potential string-encoded flow content in editor_json too
+                    let flowContent = post.editor_json.flow;
+                    if (typeof flowContent === 'string') {
+                        try { flowContent = JSON.parse(flowContent); } catch (e) { }
+                    }
+
+                    this.content = JSON.parse(JSON.stringify(flowContent));
+                } else if (post.content) {
+                    // Legacy Format - Migrate
+                    try {
+                        const sanitized = this.sanitizeContent(post.content) || { type: 'doc', content: [] };
+                        this.content = sanitized;
+
+                        // Migrate to new format structure immediately
+                        const migratedJson: EditorJSON = {
+                            meta: { canvasWidth: CANVAS_WIDTH, canvasPadding: CANVAS_PADDING, version: 1 },
+                            flow: sanitized,
+                            floating: []
+                        };
+                        this.editorJson.set(migratedJson);
+                    } catch (e) {
+                        console.error('Content migration error:', e);
+                        this.content = { type: 'doc', content: [] };
+                        this.editorJson.set(createEmptyEditorJSON());
+                    }
+                } else {
+                    // Empty new post (fallback)
                     this.content = { type: 'doc', content: [] };
-                    this.toast.warning('Content format issue - some content may not load correctly');
+                    this.editorJson.set(createEmptyEditorJSON());
                 }
 
                 this.dirty.set(false);
             },
-            error: () => {
-                this.toast.error('Failed to load post');
-            }
+            error: () => this.toast.error('Failed to load post')
         });
     }
 
-    // Sanitize content to fix node type naming mismatches
     private sanitizeContent(content: any): any {
+        console.log('Sanitizing content:', content);
         if (!content) return { type: 'doc', content: [] };
+
+        // Handle double-encoded JSON strings
+        if (typeof content === 'string') {
+            try {
+                content = JSON.parse(content);
+                console.log('Parsed string content to object:', content);
+            } catch (e) {
+                console.error('Failed to parse content string:', e);
+                return { type: 'doc', content: [] };
+            }
+        }
 
         const sanitizeNode = (node: any): any => {
             if (!node) return node;
 
-            // Map incorrect node type names to correct ones
             const nodeTypeMap: { [key: string]: string } = {
                 'listItem': 'list_item',
                 'bulletList': 'bullet_list',
@@ -216,22 +323,202 @@ export class EditorComponent implements OnInit, OnDestroy {
                 'hardBreak': 'hard_break'
             };
 
-            let sanitized = { ...node };
+            // If node is not an object (primitive), return it
+            if (typeof node !== 'object') return node;
 
-            // Fix node type if needed
+            let sanitized = { ...node };
             if (sanitized.type && nodeTypeMap[sanitized.type]) {
                 sanitized.type = nodeTypeMap[sanitized.type];
             }
-
-            // Recursively sanitize child content
             if (sanitized.content && Array.isArray(sanitized.content)) {
                 sanitized.content = sanitized.content.map(sanitizeNode);
             }
-
             return sanitized;
         };
 
-        return sanitizeNode(content);
+        const result = sanitizeNode(content);
+        console.log('Sanitized result:', result);
+        return result;
+    }
+
+    // ===== EDITOR JSON SYNC =====
+    onContentChange(): void {
+        // Sync flow layer with ngx-editor content
+        this.editorJson.update(json => ({
+            ...json,
+            flow: this.content
+        }));
+        this.markDirty();
+    }
+
+    // ===== FLOATING IMAGE MANAGEMENT =====
+    onImageSelect(imageId: string): void {
+        this.selectedImageId.set(imageId);
+    }
+
+    onImagePositionChange(event: { id: string; x: number; y: number }): void {
+        this.editorJson.update(json => ({
+            ...json,
+            floating: json.floating.map(img =>
+                img.id === event.id ? { ...img, x: event.x, y: event.y } : img
+            )
+        }));
+        this.markDirty();
+    }
+
+    onImageSizeChange(event: { id: string; width: number; height: number }): void {
+        this.editorJson.update(json => ({
+            ...json,
+            floating: json.floating.map(img =>
+                img.id === event.id ? { ...img, width: event.width, height: event.height } : img
+            )
+        }));
+        this.markDirty();
+    }
+
+    onImageDelete(imageId: string): void {
+        this.editorJson.update(json => ({
+            ...json,
+            floating: json.floating.filter(img => img.id !== imageId)
+        }));
+        this.selectedImageId.set(null);
+        this.markDirty();
+        this.toast.success('Image removed');
+    }
+
+    bringForward(): void {
+        const id = this.selectedImageId();
+        if (!id) return;
+
+        this.editorJson.update(json => {
+            const maxZ = Math.max(...json.floating.map(f => f.zIndex), 0);
+            return {
+                ...json,
+                floating: json.floating.map(img =>
+                    img.id === id ? { ...img, zIndex: maxZ + 1 } : img
+                )
+            };
+        });
+        this.markDirty();
+    }
+
+    sendBackward(): void {
+        const id = this.selectedImageId();
+        if (!id) return;
+
+        this.editorJson.update(json => {
+            const minZ = Math.min(...json.floating.map(f => f.zIndex), 10);
+            return {
+                ...json,
+                floating: json.floating.map(img =>
+                    img.id === id ? { ...img, zIndex: Math.max(1, minZ - 1) } : img
+                )
+            };
+        });
+        this.markDirty();
+    }
+
+    duplicateSelected(): void {
+        const id = this.selectedImageId();
+        if (!id) return;
+
+        const original = this.editorJson().floating.find(f => f.id === id);
+        if (!original) return;
+
+        const duplicate = createFloatingImage(
+            original.src,
+            original.width,
+            original.height,
+            original.x + 20,
+            original.y + 20
+        );
+        duplicate.zIndex = original.zIndex + 1;
+
+        this.editorJson.update(json => ({
+            ...json,
+            floating: [...json.floating, duplicate]
+        }));
+        this.selectedImageId.set(duplicate.id);
+        this.markDirty();
+    }
+
+    alignImage(alignment: 'left' | 'center' | 'right'): void {
+        const id = this.selectedImageId();
+        if (!id) return;
+
+        this.editorJson.update(json => ({
+            ...json,
+            floating: json.floating.map(img => {
+                if (img.id !== id) return img;
+
+                let newX = img.x;
+                switch (alignment) {
+                    case 'left':
+                        newX = 0;
+                        break;
+                    case 'center':
+                        newX = (CANVAS_INNER_WIDTH - img.width) / 2;
+                        break;
+                    case 'right':
+                        newX = CANVAS_INNER_WIDTH - img.width;
+                        break;
+                }
+                return { ...img, x: newX };
+            })
+        }));
+        this.markDirty();
+    }
+
+    // ===== AUTOSAVE =====
+    markDirty(): void {
+        this.dirty.set(true);
+        // Trigger autosave for existing posts
+        if (this.isEdit() && this.id()) {
+            this.autosave$.next();
+        }
+    }
+
+    private performAutosave(): void {
+        const postId = this.id();
+        if (!postId) return;
+
+        this.autoSaving.set(true);
+
+        this.postsService.saveDraft(postId, this.editorJson()).subscribe({
+            next: (response) => {
+                this.autoSaving.set(false);
+                this.lastSavedAt.set(new Date(response.saved_at).toLocaleTimeString());
+                // Don't clear dirty flag - user should still manually save
+            },
+            error: (err) => {
+                this.autoSaving.set(false);
+                console.error('Autosave failed:', err);
+            }
+        });
+    }
+
+    // ===== PREVIEW =====
+    openPreview(): void {
+        const previewData = {
+            title: this.title,
+            slug: this.slug,
+            excerpt: this.shortDesc,
+            content: this.content,
+            editor_json: this.editorJson(),
+            cover_image_url: this.cover,
+            category: this.category,
+            status: this.status,
+            meta_title: this.metaTitle,
+            meta_description: this.metaDesc
+        };
+
+        localStorage.setItem('admin_preview_data', JSON.stringify(previewData));
+        const previewUrl = this.isEdit() ? `/admin/preview?id=${this.id()}` : '/admin/preview';
+        window.open(previewUrl, '_blank');
+    }
+
+    toggleSidebar(): void {
+        this.sidebarVisible.update(v => !v);
     }
 
     generateSlug(): void {
@@ -255,10 +542,6 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.markDirty();
     }
 
-    markDirty(): void {
-        this.dirty.set(true);
-    }
-
     goBack(): void {
         if (this.dirty()) {
             this.showUnsavedModal.set(true);
@@ -269,7 +552,7 @@ export class EditorComponent implements OnInit, OnDestroy {
 
     confirmLeave(): void {
         this.showUnsavedModal.set(false);
-        this.dirty.set(false); // Prevent beforeunload from firing
+        this.dirty.set(false);
         this.router.navigate(['/admin']);
     }
 
@@ -277,15 +560,14 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.showUnsavedModal.set(false);
     }
 
+    // ===== SAVE POST =====
     savePost(): void {
         if (!this.title || !this.shortDesc) {
             this.toast.warning('Title and short description required');
             return;
         }
 
-        if (!this.slug) {
-            this.generateSlug();
-        }
+        if (!this.slug) this.generateSlug();
 
         this.saving.set(true);
 
@@ -294,6 +576,7 @@ export class EditorComponent implements OnInit, OnDestroy {
             slug: this.slug,
             excerpt: this.shortDesc,
             content: this.content,
+            editor_json: this.editorJson(),
             cover_image_url: this.cover,
             meta_title: this.metaTitle,
             meta_description: this.metaDesc,
@@ -306,13 +589,14 @@ export class EditorComponent implements OnInit, OnDestroy {
             : this.postsService.create(dto);
 
         request.subscribe({
-            next: () => {
+            next: (savedPost) => {
                 this.saving.set(false);
                 this.dirty.set(false);
                 this.toast.success(this.isEdit() ? 'Post updated!' : 'Post created!');
 
-                if (!this.isEdit()) {
-                    this.router.navigate(['/admin']);
+                if (!this.isEdit() && savedPost?.id) {
+                    // Navigate to edit mode for new post
+                    this.router.navigate(['/admin/editor', savedPost.id]);
                 }
             },
             error: (err) => {
@@ -322,6 +606,75 @@ export class EditorComponent implements OnInit, OnDestroy {
         });
     }
 
+    // ===== IMAGE UPLOAD FOR FLOATING LAYER =====
+    triggerEditorImageUpload(): void {
+        this.editorImageInput.nativeElement.click();
+    }
+
+    onEditorImageUpload(event: Event): void {
+        this.editorImageEvent = event;
+        this.showEditorImageCropper = true;
+    }
+
+    // Upload lock to prevent double-adding
+    private isUploadingEditorImage = false;
+
+    onEditorImageCropConfirm(result: ImageUploadResult): void {
+        // GUARD: Prevent double upload
+        if (this.isUploadingEditorImage) {
+            console.warn('Upload already in progress, ignoring duplicate call');
+            return;
+        }
+        this.isUploadingEditorImage = true;
+
+        const file = new File([result.blob], 'editor-image.png', { type: 'image/png' });
+
+        this.mediaService.upload(file).subscribe({
+            next: (media) => {
+                // Use cropped dimensions from the cropper modal
+                const imgWidth = result.width;
+                const imgHeight = result.height;
+
+                // Create floating image at center of visible canvas
+                const newImage = createFloatingImage(
+                    media.url,
+                    imgWidth,
+                    imgHeight,
+                    (CANVAS_INNER_WIDTH - imgWidth) / 2, // center X
+                    100 // Y offset from top
+                );
+
+                this.editorJson.update(json => ({
+                    ...json,
+                    floating: [...json.floating, newImage]
+                }));
+
+                this.selectedImageId.set(newImage.id);
+                this.markDirty();
+                this.onEditorImageCropCancel();
+                this.toast.success('Image added to canvas');
+                this.isUploadingEditorImage = false; // Release lock
+            },
+            error: (err) => {
+                console.error('Upload Error:', err);
+                if (err.status === 401) {
+                    this.toast.error('Session expired. Please login again.');
+                } else {
+                    this.toast.error('Upload failed. Check console.');
+                }
+                this.onEditorImageCropCancel();
+                this.isUploadingEditorImage = false; // Release lock on error
+            }
+        });
+    }
+
+    onEditorImageCropCancel(): void {
+        this.showEditorImageCropper = false;
+        this.editorImageEvent = '';
+        if (this.editorImageInput) this.editorImageInput.nativeElement.value = '';
+    }
+
+    // ===== COVER IMAGE =====
     onCoverUpload(event: Event): void {
         this.imageEvent = event;
         this.showCropper = true;
@@ -340,7 +693,6 @@ export class EditorComponent implements OnInit, OnDestroy {
                 console.error('Upload Error:', err);
                 if (err.status === 401) {
                     this.toast.error('Session expired. Please login again.');
-                    // Optional: this.router.navigate(['/login']);
                 } else {
                     this.toast.error('Failed to upload cover image. Check console for details.');
                 }
@@ -354,48 +706,12 @@ export class EditorComponent implements OnInit, OnDestroy {
         if (this.coverInput) this.coverInput.nativeElement.value = '';
     }
 
-    triggerEditorImageUpload(): void {
-        this.editorImageInput.nativeElement.click();
-    }
-
-    onEditorImageUpload(event: Event): void {
-        this.handleUpload(event, (url) => {
-            const { state, dispatch } = this.editor.view;
-            const { schema: editorSchema } = state;
-            const imageNode = editorSchema.nodes['image'].create({ src: url });
-            const tr = state.tr.replaceSelectionWith(imageNode);
-            dispatch(tr);
-            this.editor.view.focus();
-        });
-    }
-
-    private handleUpload(event: Event, callback: (url: string) => void): void {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (!file) return;
-
-        this.mediaService.upload(file).subscribe({
-            next: (media) => {
-                callback(media.url);
-            },
-            error: (err) => {
-                console.error('Upload Error:', err);
-                if (err.status === 401) {
-                    this.toast.error('Session expired. Please login again.');
-                } else {
-                    this.toast.error('Upload failed. Check console.');
-                }
-            }
-        });
-
-        input.value = '';
-    }
-
     removeCover(): void {
         this.cover = '';
         this.markDirty();
     }
 
+    // ===== FILE EMBEDS =====
     triggerEmbedFileUpload(): void {
         this.embedFileInput.nativeElement.click();
     }
@@ -425,9 +741,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     copyToClipboard(url: string): void {
         navigator.clipboard.writeText(url).then(() => {
             this.copiedUrl = url;
-            setTimeout(() => {
-                this.copiedUrl = '';
-            }, 2000);
+            setTimeout(() => this.copiedUrl = '', 2000);
         });
     }
 

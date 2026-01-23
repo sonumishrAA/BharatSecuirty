@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, AfterViewInit, HostListener, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,10 @@ import { Post, PostCategory } from '@shared/models/post.model';
 import { Meta, Title, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BlogCardComponent } from '../../components/blog-card/blog-card.component';
 import { CtaCardComponent } from '../../components/cta-card/cta-card.component';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 
 @Component({
@@ -17,10 +21,25 @@ import { CtaCardComponent } from '../../components/cta-card/cta-card.component';
     templateUrl: './post-view.component.html',
     styleUrl: './post-view.component.scss'
 })
-export class PostViewComponent implements OnInit {
+export class PostViewComponent implements OnInit, AfterViewInit {
     post = signal<Post | null>(null);
     relatedPosts = signal<Post[]>([]);
     loading = signal(true);
+    scaleFactor = signal(1);
+
+    // Compute minimum canvas height to contain all floating images
+    canvasMinHeight = computed(() => {
+        const p = this.post();
+        if (!p?.editor_json?.floating?.length) return 0;
+
+        // Find the maximum (y + height) among all floating images
+        // Add 60px offset that we add to y in the template
+        const maxBottom = Math.max(...p.editor_json.floating.map(
+            img => img.y + 60 + img.height
+        ));
+
+        return maxBottom + 40; // Add 40px extra padding
+    });
 
     // Subscription
     email = '';
@@ -32,15 +51,124 @@ export class PostViewComponent implements OnInit {
     private sanitizer = inject(DomSanitizer);
     private toast = inject(ToastService);
 
+    @HostListener('window:resize')
+    onResize() {
+        this.updateScaleFactor();
+    }
+
     ngOnInit(): void {
+        this.updateScaleFactor();
         this.route.paramMap.subscribe(params => {
             const slug = params.get('slug');
             if (slug) {
                 this.loadPost(slug);
                 // Scroll to top when slug changes
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'instant' });
             }
         });
+    }
+
+    updateScaleFactor() {
+        const viewportWidth = window.innerWidth;
+        const containerPadding = 32; // 16px each side
+        const canvasWidth = 1216;
+
+        // On Mobile/Tablet (< 1000px), disable Zoom scaling and let CSS reflow handle it
+        if (viewportWidth < 1000) {
+            this.scaleFactor.set(1);
+            return;
+        }
+
+        // On Desktop (> 1000px), scale down if window is smaller than canvas
+        if (viewportWidth < canvasWidth + containerPadding) {
+            const scale = (viewportWidth - containerPadding) / canvasWidth;
+            this.scaleFactor.set(Math.max(0.3, scale));
+        } else {
+            this.scaleFactor.set(1);
+        }
+    }
+
+    ngAfterViewInit() {
+        // We need to wait for post to load for some elements, 
+        // but can animate static structure first or use effect
+    }
+
+    animateContent() {
+        // Wait for next macrotask to ensure DOM is rendered
+        setTimeout(() => {
+            const tl = gsap.timeline();
+
+            tl.from('.post-title', {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            })
+                .from('.breadcrumb', {
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: 'power3.out'
+                }, '-=0.6')
+                .from('.post-meta-header', {
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: 'power3.out'
+                }, '-=0.4');
+
+            // Animate Body Content
+            gsap.from('.blog-canvas', {
+                scrollTrigger: {
+                    trigger: '.blog-canvas',
+                    start: 'top 85%'
+                },
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+
+            // Sidebar Widgets
+            const widgets = gsap.utils.toArray('.sidebar-widget');
+            widgets.forEach((widget: any, i) => {
+                gsap.from(widget, {
+                    scrollTrigger: {
+                        trigger: widget,
+                        start: 'top 90%'
+                    },
+                    x: 30,
+                    opacity: 0,
+                    duration: 0.6,
+                    delay: i * 0.1,
+                    ease: 'power3.out'
+                });
+            });
+
+            // Author Box
+            gsap.from('.author-box', {
+                scrollTrigger: {
+                    trigger: '.author-box',
+                    start: 'top 90%'
+                },
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+
+            // Bottom CTA
+            gsap.from('.post-cta-banner', {
+                scrollTrigger: {
+                    trigger: '.post-cta-banner',
+                    start: 'top 85%'
+                },
+                scale: 0.9,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'back.out(1.7)'
+            });
+        }, 100);
     }
 
     loadPost(slug: string): void {
@@ -58,6 +186,9 @@ export class PostViewComponent implements OnInit {
 
                 // Fetch related posts
                 this.loadRelatedPosts(post.category);
+
+                // Trigger animations
+                this.animateContent();
             },
             error: () => {
                 this.loading.set(false);
@@ -78,11 +209,20 @@ export class PostViewComponent implements OnInit {
 
     renderContent(): SafeHtml {
         const post = this.post();
-        if (!post?.content) return '';
+        if (!post) return '';
 
-        // Simple TipTap JSON to HTML renderer
-        const html = this.renderNode(post.content);
-        return this.sanitizer.bypassSecurityTrustHtml(html);
+        // If html_snapshot exists (Canvas Editor format), render it directly
+        if (post.html_snapshot) {
+            return this.sanitizer.bypassSecurityTrustHtml(post.html_snapshot);
+        }
+
+        // Fallback for legacy posts (TipTap JSON)
+        if (post.content) {
+            const html = this.renderNode(post.content);
+            return this.sanitizer.bypassSecurityTrustHtml(html);
+        }
+
+        return '';
     }
 
     subscribe(event: Event): void {
@@ -133,7 +273,8 @@ export class PostViewComponent implements OnInit {
 
         if (type === 'paragraph') {
             const content = (node.content || []).map((n: any) => this.renderNode(n)).join('');
-            return `<p>${content}</p>`;
+            // Handle empty paragraphs (Enter key creates new paragraph)
+            return `<p>${content || '<br>'}</p>`;
         }
 
         if (type === 'heading') {
@@ -161,10 +302,10 @@ export class PostViewComponent implements OnInit {
             return `<li>${content}</li>`;
         }
 
+        // SKIP inline images - all images should come from floating layer only
+        // This prevents duplicates when images accidentally end up in both layers
         if (type === 'imageBlock' || type === 'image') {
-            const src = node.attrs?.src || '';
-            const caption = node.attrs?.caption || node.attrs?.alt || '';
-            return `<figure class="post-image"><img src="${src}" alt="${caption}"/>${caption ? `<figcaption>${caption}</figcaption>` : ''}</figure>`;
+            return ''; // Render nothing - floating layer handles all images
         }
 
         if (type === 'blockquote') {
@@ -198,9 +339,12 @@ export class PostViewComponent implements OnInit {
         let styles: string[] = [];
 
         (node.marks || []).forEach((mark: any) => {
-            if (mark.type === 'bold') text = `<strong>${text}</strong>`;
-            if (mark.type === 'italic') text = `<em>${text}</em>`;
+            // Handle both 'bold' and 'strong' (ngx-editor uses 'strong')
+            if (mark.type === 'bold' || mark.type === 'strong') text = `<strong>${text}</strong>`;
+            // Handle both 'italic' and 'em' (ngx-editor uses 'em')
+            if (mark.type === 'italic' || mark.type === 'em') text = `<em>${text}</em>`;
             if (mark.type === 'underline') text = `<u>${text}</u>`;
+            if (mark.type === 'strike') text = `<s>${text}</s>`;
 
             if (mark.type === 'link') {
                 let href = mark.attrs?.href || '';
@@ -211,8 +355,12 @@ export class PostViewComponent implements OnInit {
                 text = `<a href="${href}" target="_blank">${text}</a>`;
             }
 
-            if (mark.type === 'text_color') styles.push(`color: ${mark.attrs?.color}`);
-            if (mark.type === 'background_color') styles.push(`background-color: ${mark.attrs?.color}`);
+            // Handle both naming conventions for colors
+            if (mark.type === 'text_color' || mark.type === 'textColor') styles.push(`color: ${mark.attrs?.color}`);
+            if (mark.type === 'background_color' || mark.type === 'backgroundColor') styles.push(`background-color: ${mark.attrs?.color}`);
+
+            // Handle code mark
+            if (mark.type === 'code') text = `<code>${text}</code>`;
         });
 
         if (styles.length > 0) {

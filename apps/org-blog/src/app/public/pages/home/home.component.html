@@ -1,73 +1,89 @@
 <main class="blog-home">
     <!-- Hero Section -->
     <section class="hero-section">
+        <div class="hero-mesh"></div>
         <div class="container">
             <div class="hero-grid">
                 <!-- Left: Title + Subscribe -->
                 <div class="hero-intro">
-                    <span class="hero-badge">BharatSecurity Blog</span>
-                    <h1 class="hero-title">The latest from<br>BharatSecurity</h1>
+                    <div class="hero-badge">
+                        <span class="pulse-dot"></span>
+                        <span>Latest Intelligence</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Secure Your <br>
+                        <span class="text-gradient">Digital Future</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Advanced OSINT methodologies, real-time scam alerts, and cybersecurity guides for the modern
+                        web.
+                    </p>
 
                     <div class="subscribe-form">
-                        <p class="subscribe-label">Subscribe to our Blog</p>
+                        <div class="form-header">
+                            <span class="material-icons-round neon-text">mail</span>
+                            <p>Join the Intelligence Network</p>
+                        </div>
                         <form (submit)="subscribe($event)">
-                            <input type="email" [(ngModel)]="email" name="email" placeholder="your@email.com"
-                                required />
-                            <button type="submit" class="btn-submit">
-                                Submit
-                                <span class="material-icons-round">arrow_forward</span>
-                            </button>
+                            <div class="input-group">
+                                <input type="email" [(ngModel)]="email" name="email"
+                                    placeholder="Enter your secure email" required autocomplete="email" />
+                                <button type="submit" class="btn-submit">
+                                    <span class="material-icons-round">arrow_forward</span>
+                                </button>
+                            </div>
                         </form>
                         <p class="subscribe-note">
-                            We'll handle your data in line with our
-                            <a routerLink="/privacy">Privacy Policy</a>.
+                            Encrypted & Secure. Read our <a routerLink="/privacy">Privacy Protocol</a>.
                         </p>
                     </div>
                 </div>
 
-                <!-- Right: Featured Post -->
                 <!-- Right: Featured Post Slider -->
                 @if (featuredPosts().length > 0) {
-                <div class="featured-slider">
-                    @for (post of featuredPosts(); track post.id; let i = $index) {
-                    <a [routerLink]="['/blog', post.slug]" class="featured-card"
-                        [class.active]="i === currentFeaturedIndex()"
-                        [style.display]="i === currentFeaturedIndex() ? 'block' : 'none'">
-                        <div class="featured-image">
-                            @if (post.cover_image_url) {
-                            <img [src]="post.cover_image_url" [alt]="post.title" />
-                            }
-                            <div class="featured-overlay"></div>
-                        </div>
-                        <div class="featured-content">
-                            <span class="featured-tag" [attr.data-category]="post.category">
-                                {{ formatCategory(post.category) }}
-                            </span>
-                            <h2 class="featured-title">{{ post.title }}</h2>
-                            <p class="featured-date">{{ post.created_at | date:'MMMM d, yyyy' }}</p>
-                            <p class="featured-excerpt">{{ post.excerpt }}</p>
-                            <span class="featured-cta">
-                                Read Now
-                                <span class="material-icons-round">arrow_forward</span>
-                            </span>
-                        </div>
-                    </a>
-                    }
+                <div class="featured-slider-container">
+                    <div class="featured-slider">
+                        @for (post of featuredPosts(); track post.id; let i = $index) {
+                        <a [routerLink]="['/blog', post.slug]" class="featured-card glass-card"
+                            [class.active]="i === currentFeaturedIndex()">
+                            <div class="featured-image">
+                                @if (post.cover_image_url) {
+                                <img [src]="post.cover_image_url" [alt]="post.title" loading="lazy" />
+                                }
+                                <div class="featured-overlay"></div>
+                                <span class="featured-tag" [attr.data-category]="post.category">
+                                    {{ formatCategory(post.category) }}
+                                </span>
+                            </div>
+                            <div class="featured-content">
+                                <div class="content-inner">
+                                    <h2 class="featured-title">{{ post.title }}</h2>
+                                    <div class="meta-row">
+                                        <span class="date">{{ post.created_at | date:'MMM d, yyyy' }}</span>
+                                        <span class="divider">•</span>
+                                        <span class="read-time">5 min read</span>
+                                    </div>
+                                    <span class="featured-cta">
+                                        Read Analysis <span class="material-icons-round">arrow_forward</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        }
+                    </div>
 
                     <!-- Slider Controls -->
                     <div class="slider-controls">
-                        <button class="control-btn prev"
-                            (click)="prevFeatured(); $event.stopPropagation(); $event.preventDefault()">
+                        <button class="control-btn prev" (click)="prevFeatured(); $event.stopPropagation()">
                             <span class="material-icons-round">chevron_left</span>
                         </button>
                         <div class="slider-dots">
                             @for (post of featuredPosts(); track post.id; let i = $index) {
                             <button class="dot" [class.active]="i === currentFeaturedIndex()"
-                                (click)="setFeatured(i); $event.stopPropagation(); $event.preventDefault()"></button>
+                                (click)="setFeatured(i); $event.stopPropagation()"></button>
                             }
                         </div>
-                        <button class="control-btn next"
-                            (click)="nextFeatured(); $event.stopPropagation(); $event.preventDefault()">
+                        <button class="control-btn next" (click)="nextFeatured(); $event.stopPropagation()">
                             <span class="material-icons-round">chevron_right</span>
                         </button>
                     </div>
@@ -78,17 +94,19 @@
     </section>
 
     <!-- Category Tabs -->
-    <section class="category-tabs">
+    <section class="category-tabs sticky-tabs">
         <div class="container">
             <div class="tabs-scroll">
-                <button class="tab" [class.active]="activeCategory() === 'all'" (click)="filterCategory('all')">
-                    All
-                </button>
+                <a routerLink="/" [queryParams]="{}" class="tab" [class.active]="activeCategory() === 'all'">
+                    <span class="material-icons-round">grid_view</span>
+                    All Intel
+                </a>
                 @for (cat of categories; track cat.value) {
-                <button class="tab" [class.active]="activeCategory() === cat.value" [style.--cat-color]="cat.color"
-                    (click)="filterCategory(cat.value)">
+                <a routerLink="/" [queryParams]="{category: cat.value}" class="tab"
+                    [class.active]="activeCategory() === cat.value" [style.--cat-color]="cat.color">
+                    <span class="status-dot"></span>
                     {{ cat.label }}
-                </button>
+                </a>
                 }
             </div>
         </div>
@@ -99,13 +117,13 @@
         <div class="container">
             @if (loading()) {
             <div class="blog-grid">
-                @for (i of [1,2,3]; track i) {
+                @for (i of [1,2,3,4,5,6]; track i) {
                 <app-skeleton></app-skeleton>
                 }
             </div>
             } @else {
             <div class="blog-grid">
-                @for (post of filteredPosts(); track post.id) {
+                @for (post of paginatedPosts; track post.id) {
                 <app-blog-card [post]="post"></app-blog-card>
                 }
             </div>
@@ -115,7 +133,6 @@
             <div class="pagination">
                 <button class="page-btn prev" [disabled]="currentPage() === 1" (click)="prevPage()">
                     <span class="material-icons-round">chevron_left</span>
-                    Previous
                 </button>
 
                 @for (page of pagesArray(); track page) {
@@ -125,7 +142,6 @@
                 }
 
                 <button class="page-btn next" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
-                    Next
                     <span class="material-icons-round">chevron_right</span>
                 </button>
             </div>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Post, PostDto, PostCategory, PostStatus } from '@shared/models/post.model';
+import { EditorJSON } from '@shared/models/editor-json.model';
 import { environment } from '@environments';
 
 export interface PostQueryParams {
@@ -11,6 +12,11 @@ export interface PostQueryParams {
     offset?: number;
     orderBy?: 'created_at' | 'updated_at' | 'title';
     order?: 'asc' | 'desc';
+}
+
+export interface DraftSaveResponse {
+    success: boolean;
+    saved_at: string;
 }
 
 @Injectable({
@@ -86,6 +92,20 @@ export class PostsService {
         return this.http.patch<Post>(`${this.API_URL}/${id}/status`, {});
     }
 
+    /**
+     * Save draft (autosave) - Canvas Editor
+     */
+    saveDraft(id: string, editorJson: EditorJSON): Observable<DraftSaveResponse> {
+        return this.http.put<DraftSaveResponse>(`${this.API_URL}/${id}/draft`, { editor_json: editorJson });
+    }
+
+    /**
+     * Publish post - Canvas Editor
+     */
+    publish(id: string, editorJson?: EditorJSON): Observable<Post> {
+        return this.http.put<Post>(`${this.API_URL}/${id}/publish`, { editor_json: editorJson });
+    }
+
     getPublished(category?: PostCategory, limit = 10): Observable<Post[]> {
         return this.getAll({
             status: 'published',
@@ -103,3 +123,4 @@ export class PostsService {
         return this.http.post(`${environment.apiUrl}/subscribers`, { email });
     }
 }
+

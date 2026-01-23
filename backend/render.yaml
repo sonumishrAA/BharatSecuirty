@@ -1,0 +1,31 @@
+# Render Blueprint for Bharat Security Backend
+# This file describes the services to be deployed
+
+services:
+  # Backend API Service
+  - type: web
+    name: bharatsecurity-api
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bharatsecurity-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://bs-org-blog.netlify.app,https://bs-net-admin.netlify.app
+
+databases:
+  # PostgreSQL Database
+  - name: bharatsecurity-db
+    databaseName: bharatsecurity
+    user: bharatsec_user
+    plan: free

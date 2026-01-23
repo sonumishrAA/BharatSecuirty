@@ -56,16 +56,16 @@
 }
 
 .category-card {
-    background: white;
-    border: 1px solid $admin-border;
+    background: $bg-secondary;
+    border: 1px solid $border-medium;
     border-radius: $radius-xl;
-    box-shadow: $shadow-card;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     transition: all $transition-fast;
 
     &:hover {
-        border-color: $admin-primary;
-        box-shadow: $shadow-md;
+        border-color: $primary;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     }
 }
 
@@ -74,8 +74,8 @@
     align-items: center;
     gap: $space-sm;
     padding: $space-lg;
-    background: $admin-panel;
-    border-bottom: 1px solid $admin-border;
+    background: rgba($primary, 0.05);
+    border-bottom: 1px solid $border-medium;
 
     .category-icon {
         width: 40px;

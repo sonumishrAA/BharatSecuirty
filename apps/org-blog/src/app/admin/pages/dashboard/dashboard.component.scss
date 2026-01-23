@@ -56,18 +56,18 @@
     gap: $space-xs;
     padding: $space-sm $space-lg;
     border-radius: $radius-lg;
-    border: 1px solid $admin-border;
-    background: white;
-    color: $admin-text;
+    border: 1px solid $border-medium;
+    background: $bg-card;
+    color: $text-main;
     font-size: $font-md;
     font-weight: 500;
     cursor: pointer;
     transition: all $transition-fast;
 
     &:hover {
-        background: $admin-panel;
-        border-color: $admin-primary;
-        color: $admin-primary;
+        background: $bg-card-hover;
+        border-color: $primary;
+        color: $primary;
     }
 }
 
@@ -91,10 +91,10 @@
 }
 
 .card {
-    background: white;
-    border: 1px solid $admin-border;
+    background: $bg-secondary;
+    border: 1px solid $border-medium;
     border-radius: $radius-xl;
-    box-shadow: $shadow-card;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     overflow: hidden;
 }
 
@@ -111,8 +111,8 @@
     }
 
     th {
-        background: $admin-panel;
-        color: $admin-muted;
+        background: rgba($primary, 0.05);
+        color: $text-secondary;
         font-weight: 600;
         font-size: $font-xs;
         text-transform: uppercase;

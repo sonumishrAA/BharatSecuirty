@@ -1,4 +1,5 @@
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/typography' as *;
 
 .editor-page {
     display: flex;
@@ -54,7 +55,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    background: white;
+    @include glass-card; // Use glass card for consistent dark look
     padding: $space-md $space-lg;
     display: flex;
     justify-content: space-between;
@@ -75,11 +76,12 @@
     align-items: center;
     gap: $space-xxs;
     padding: $space-xxs $space-sm;
-    background: $admin-warning-light;
+    background: rgba($admin-warning, 0.1); // Use rgba for transparency
     color: $admin-warning;
     border-radius: $radius-full;
     font-size: $font-xs;
     font-weight: 600;
+    border: 1px solid rgba($admin-warning, 0.2); // Add border for definition
     animation: pulse 2s infinite;
 
     .material-icons-round {
@@ -94,7 +96,7 @@
     padding: $space-sm $space-md;
     border-radius: $radius-lg;
     border: 1px solid $admin-border;
-    background: white;
+    background: rgba(255, 255, 255, 0.05); // Dark transparent bg
     color: $admin-text;
     font-size: $font-md;
     font-weight: 500;
@@ -106,8 +108,9 @@
     }
 
     &:hover {
-        background: $admin-panel;
-        color: $admin-primary;
+        background: $admin-border; // Slightly lighter on hover
+        color: white;
+        border-color: $admin-primary;
     }
 }
 
@@ -118,7 +121,7 @@
     padding: $space-sm $space-md;
     border-radius: $radius-lg;
     border: 1px solid $admin-border;
-    background: white;
+    background: rgba(255, 255, 255, 0.05);
     color: $admin-text;
     font-size: $font-md;
     font-weight: 500;
@@ -131,7 +134,7 @@
 
     &:hover,
     &.active {
-        background: $admin-primary-light;
+        background: rgba($admin-primary, 0.1);
         border-color: $admin-primary;
         color: $admin-primary;
     }
@@ -145,9 +148,9 @@
     border-radius: $radius-lg;
     border: none;
     background: $admin-gradient-primary;
-    color: white;
+    color: $bg-main; // Dark text on bright button
     font-size: $font-md;
-    font-weight: 500;
+    font-weight: 700; // Bold text
     cursor: pointer;
     transition: all $transition-fast;
 
@@ -169,8 +172,8 @@
 .spinner {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    border: 2px solid rgba($bg-main, 0.3); // Adjusted for button text color
+    border-top-color: $bg-main;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -182,8 +185,9 @@
     justify-content: center;
     gap: $space-sm;
     padding: $space-sm $space-lg;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
+    background: linear-gradient(135deg, rgba($admin-warning, 0.2), rgba($admin-danger, 0.2)); // Glassy warning
+    border: 1px solid rgba($admin-warning, 0.3);
+    color: $admin-warning;
     font-size: $font-sm;
     font-weight: 500;
     border-radius: $radius-lg;
@@ -208,13 +212,14 @@
     left: 0;
     width: 360px;
     height: 100vh;
-    background: white;
+    background: $admin-bg; // Use dark background
     box-shadow: $shadow-xl;
     z-index: 50;
     display: flex;
     flex-direction: column;
     transform: translateX(-100%);
     transition: transform 0.3s $ease;
+    border-right: 1px solid $admin-border;
 
     &.visible {
         transform: translateX(0);
@@ -243,15 +248,16 @@
     align-items: center;
     justify-content: center;
     border-radius: $radius-md;
-    border: none;
+    border: 1px solid transparent; // Consistent sizing
     background: transparent;
     color: $admin-muted;
     cursor: pointer;
     transition: all $transition-fast;
 
     &:hover {
-        background: $admin-danger-light;
+        background: rgba($admin-danger, 0.1);
         color: $admin-danger;
+        border-color: rgba($admin-danger, 0.3);
     }
 }
 
@@ -289,24 +295,28 @@ textarea,
 select {
     padding: $space-sm $space-md;
     border-radius: $radius-lg;
-    border: 2px solid $admin-border;
+    border: 1px solid $admin-border; // Standardize border
     font-size: $font-md;
     width: 100%;
+    background: rgba(0, 0, 0, 0.2); // Dark transparent background
+    color: $admin-text;
     transition: all $transition-fast;
 
     &::placeholder {
-        color: #cbd5e1;
+        color: $admin-muted;
     }
 
     &:focus {
         outline: none;
         border-color: $admin-primary;
-        box-shadow: 0 0 0 3px $admin-primary-light;
+        background: rgba(0, 0, 0, 0.4); // Slightly darker on focus
+        box-shadow: 0 0 0 1px $admin-primary-light; // Subtle glow
     }
 }
 
 select {
     appearance: none;
+    // Update arrow color to match theme
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -368,9 +378,9 @@ select {
     gap: $space-xxs;
     padding: $space-xs $space-sm;
     border-radius: $radius-md;
-    border: 1px solid $admin-border;
-    background: white;
-    color: $admin-text;
+    border: 1px solid $border-medium;
+    background: $bg-card;
+    color: $text-main;
     font-size: $font-xs;
     cursor: pointer;
     transition: all $transition-fast;
@@ -380,7 +390,7 @@ select {
     }
 
     &:hover {
-        background: $admin-panel;
+        background: $bg-card-hover;
     }
 
     &.danger:hover {
@@ -521,7 +531,7 @@ select {
     animation: spin 0.8s linear infinite;
 }
 
-// ===== CANVAS - FULL WIDTH =====
+// ===== CANVAS - HYBRID LAYOUT =====
 .editor-canvas {
     flex: 1;
     display: flex;
@@ -530,90 +540,215 @@ select {
     padding: $space-lg;
     border-radius: $radius-xl;
     min-height: calc(100vh - 180px);
+    overflow-y: auto;
 }
 
 .editor-wrapper {
     width: 100%;
-    max-width: 1000px;
-    background: white;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-card;
+    max-width: fit-content; // Shrink to fit canvas
+    background: transparent;
     display: flex;
     flex-direction: column;
+    align-items: center; // Center the canvas
+    gap: 16px;
 }
 
-// ===== TOOLBAR =====
+// Toolbar Wrapper (detached from canvas top)
 .ngx-toolbar-wrapper {
-    border-bottom: 1px solid $admin-border;
+    width: 1216px; // Match canvas width
+    max-width: 100%;
+    background: $admin-panel;
+    border: 1px solid $admin-border;
+    border-radius: $radius-lg;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
+    gap: 8px;
     flex-wrap: wrap;
-    padding: $space-sm;
-    background: $admin-panel;
-    border-radius: $radius-lg $radius-lg 0 0;
+    box-shadow: $shadow-sm;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 
     ::ng-deep .NgxEditor__MenuBar {
         border: none;
         background: transparent;
-        flex-wrap: wrap;
-        gap: 4px;
-
-        .NgxEditor__MenuItem {
-            border-radius: $radius-sm;
-
-            &:hover {
-                background: white;
-            }
-        }
+        flex: 1;
     }
+}
 
-    ::ng-deep .NgxEditor__Dropdown {
-        position: relative !important;
+// ===== THE CANVAS =====
+.blog-canvas {
+    position: relative;
+    background: $public-bg-main;
+    box-shadow: $shadow-card;
+    min-height: 1000px;
+    margin-bottom: 50px;
+    // Padding is set via inline styles from constants
 
-        .NgxEditor__Dropdown__DropdownMenu {
-            position: absolute !important;
-            top: 100% !important;
-            right: 0 !important;
-            left: auto !important;
-            max-width: 280px !important;
-            max-height: 350px !important;
-            overflow-y: auto !important;
-            z-index: 9999 !important;
-            background: white !important;
-            border: 1px solid $admin-border !important;
-            border-radius: $radius-lg !important;
-            box-shadow: $shadow-lg !important;
-            padding: $space-sm !important;
-        }
-    }
+    // Grid pattern for better alignment (subtle)
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
 
-    // Enhanced color picker - 12 column grid like screenshot
-    ::ng-deep .NgxEditor__Color {
-        .NgxEditor__Color__Wrapper {
-            display: grid !important;
-            grid-template-columns: repeat(12, 22px) !important;
-            gap: 3px !important;
-            padding: $space-xs !important;
-        }
+// Layer 1: Flow Text
+.flow-layer {
+    position: relative;
+    z-index: 1;
 
-        .NgxEditor__Color__Color {
-            width: 22px !important;
-            height: 22px !important;
-            border-radius: 3px !important;
-            cursor: pointer !important;
-            border: 1px solid rgba(0, 0, 0, 0.1) !important;
-            transition: all 0.15s !important;
+    ::ng-deep .NgxEditor {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        min-height: 500px;
 
-            &:hover {
-                transform: scale(1.3) !important;
-                border-color: #333 !important;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
-                z-index: 10 !important;
-                position: relative !important;
-            }
+        // Exact typography match with public view
+        @include article-typography;
+
+        // Override for spacing preservation
+        p {
+            white-space: pre-wrap;
         }
     }
 }
+
+// Layer 2: Floating Images
+.floating-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none; // Let clicks pass through to text unless hitting an image
+    z-index: 10;
+
+    // Children (images) re-enable pointer events
+    ::ng-deep app-floating-image {
+        pointer-events: auto;
+        display: block; // Ensure it has geometry for hit testing
+    }
+}
+
+// Floating Toolbar
+.floating-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #1e293b;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-left: auto; // Push to right
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .divider {
+        width: 1px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 4px;
+    }
+
+    .toolbar-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: #e2e8f0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        &.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .material-icons-round {
+            font-size: 18px;
+        }
+    }
+}
+
+// Custom Buttons
+.custom-image-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: $admin-text;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        background: rgba($admin-primary, 0.1);
+        color: $admin-primary;
+    }
+}
+
+// Autosave Indicators
+.autosave-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    margin-left: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+
+    &.saving {
+        color: $admin-muted;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.saved {
+        color: $admin-primary; // Neon green
+        background: rgba($admin-primary, 0.1);
+
+        .material-icons-round {
+            font-size: 16px;
+        }
+    }
+}
+
+// Enhanced color picker - 12 column grid like screenshot
+::ng-deep .NgxEditor__Color {
+    .NgxEditor__Color__Wrapper {
+        display: grid !important;
+        grid-template-columns: repeat(12, 22px) !important;
+        gap: 3px !important;
+        padding: $space-xs !important;
+        background: $admin-bg !important;
+    }
+
+    .NgxEditor__Color__Color {
+        width: 22px !important;
+        height: 22px !important;
+        border-radius: 3px !important;
+        cursor: pointer !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important; // Light border for visibility
+        transition: all 0.15s !important;
+
+        &:hover {
+            transform: scale(1.3) !important;
+            border-color: white !important;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2) !important;
+            z-index: 10 !important;
+            position: relative !important;
+        }
+    }
+}
+
 
 .custom-image-btn {
     margin-left: auto;
@@ -622,7 +757,7 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
+    background: transparent;
     border: 1px solid $admin-border;
     border-radius: $radius-md;
     cursor: pointer;
@@ -630,12 +765,16 @@ select {
 
     .material-icons-round {
         font-size: 18px;
-        color: $admin-primary;
+        color: $admin-muted;
     }
 
     &:hover {
-        background: $admin-primary-light;
+        background: rgba($admin-primary, 0.1);
         border-color: $admin-primary;
+
+        .material-icons-round {
+            color: $admin-primary;
+        }
     }
 }
 
@@ -645,126 +784,201 @@ select {
     flex: 1;
     min-height: 500px;
     overflow-y: auto;
-    padding: 48px 64px;
-    font-family: $font-family;
-    font-size: 17px;
-    line-height: 1.8;
-    color: $admin-text;
+    padding: $spacing-lg; // Match public container padding (32px)
+
+    // Apply shared public typography
+    @include article-typography;
+
+    // Force Dark Theme for the Canvas (WYSIWYG)
+    background-color: $public-bg-main !important; // Force Dark background
+    color: $text-secondary !important; // Force Light text content
+
+    // ===== EXPLICIT FORMATTING STYLES FOR TOOLBAR TOOLS =====
+    // These ensure bold, italic, etc. are clearly visible
+    .ProseMirror {
+
+        // Bold text - MUST be visible and prominent
+        strong,
+        b {
+            font-weight: 700 !important;
+            color: $text-main !important;
+        }
+
+        // Italic text
+        em,
+        i {
+            font-style: italic !important;
+            color: $text-main !important;
+        }
+
+        // Underline
+        u {
+            text-decoration: underline !important;
+            text-decoration-color: $primary !important;
+        }
+
+        // Strikethrough
+        s,
+        strike {
+            text-decoration: line-through !important;
+            color: $text-muted !important;
+        }
+
+        // Inline code
+        code {
+            background: rgba($primary, 0.15) !important;
+            color: lighten($primary, 10%) !important;
+            padding: 2px 6px !important;
+            border-radius: 4px !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 0.9em !important;
+            border: 1px solid rgba($primary, 0.2) !important;
+        }
+
+        // Links
+        a {
+            color: $primary !important;
+            text-decoration: underline !important;
+            cursor: pointer !important;
+        }
+
+        // Blockquotes
+        blockquote {
+            border-left: 4px solid $primary !important;
+            padding-left: 16px !important;
+            margin: 16px 0 !important;
+            color: $text-main !important;
+            font-style: italic !important;
+            background: rgba($primary, 0.05) !important;
+            padding: 16px !important;
+            border-radius: 0 $radius-md $radius-md 0 !important;
+        }
+
+        // Code blocks
+        pre {
+            background: #0f172a !important;
+            border: 1px solid $border-light !important;
+            padding: 16px !important;
+            border-radius: $radius-md !important;
+            overflow-x: auto !important;
+            color: #e2e8f0 !important;
+            font-family: 'JetBrains Mono', monospace !important;
+
+            code {
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                color: inherit !important;
+            }
+        }
+
+        // Headings
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: $text-main !important;
+            font-weight: 700 !important;
+            margin: 24px 0 12px !important;
+        }
+
+        h1 {
+            font-size: 2rem !important;
+        }
+
+        h2 {
+            font-size: 1.75rem !important;
+        }
+
+        h3 {
+            font-size: 1.5rem !important;
+        }
+
+        h4 {
+            font-size: 1.25rem !important;
+        }
+
+        // Lists
+        ul,
+        ol {
+            padding-left: 24px !important;
+            margin: 16px 0 !important;
+        }
+
+        li {
+            margin-bottom: 8px !important;
+            color: $text-secondary !important;
+
+            &::marker {
+                color: $primary !important;
+            }
+        }
+
+        // Horizontal rule
+        hr {
+            border: none !important;
+            height: 2px !important;
+            background: linear-gradient(90deg, transparent, $primary, transparent) !important;
+            margin: 32px 0 !important;
+        }
+
+        // Images - centered by default to match public view
+        // Override any text-align from parent paragraph
+        img {
+            display: block !important;
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: $radius-lg !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            margin-top: 32px !important;
+            margin-bottom: 32px !important;
+            border: 1px solid $border-light !important;
+        }
+
+        // Ensure paragraphs with images center them
+        p:has(img) {
+            text-align: center !important;
+        }
+
+        // Paragraph spacing
+        p {
+            margin-bottom: 16px !important;
+            line-height: 1.8 !important;
+        }
+
+        // Text alignment classes
+        .text-align-left {
+            text-align: left !important;
+        }
+
+        .text-align-center {
+            text-align: center !important;
+        }
+
+        .text-align-right {
+            text-align: right !important;
+        }
+
+        .text-align-justify {
+            text-align: justify !important;
+        }
+    }
 
     &::-webkit-scrollbar {
         width: 8px;
     }
 
     &::-webkit-scrollbar-track {
-        background: $admin-panel;
+        background: $public-bg-main;
         border-radius: $radius-sm;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: $admin-border;
+        background: $border-light;
         border-radius: $radius-sm;
-    }
-
-    p {
-        margin-bottom: 1.5em;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        margin-top: 1.5em;
-        margin-bottom: 0.5em;
-        font-weight: 700;
-    }
-
-    blockquote {
-        border-left: 4px solid $admin-primary;
-        padding-left: 16px;
-        color: $admin-muted;
-        font-style: italic;
-        margin: 1.5em 0;
-    }
-
-    img {
-        max-width: 100%;
-        height: auto;
-        border-radius: $radius-md;
-        margin: 20px 0;
-    }
-
-    // ===== LIST STYLES =====
-    ul,
-    ol {
-        padding-left: 24px;
-        margin: 1em 0;
-    }
-
-    ul {
-        list-style-type: disc;
-    }
-
-    ol {
-        list-style-type: decimal;
-    }
-
-    li {
-        margin-bottom: 0.5em;
-        padding-left: 4px;
-
-        >p {
-            margin-bottom: 0.25em;
-        }
-    }
-
-    // Nested lists
-    ul ul,
-    ol ul {
-        list-style-type: circle;
-    }
-
-    ul ul ul,
-    ol ul ul {
-        list-style-type: square;
-    }
-
-    ol ol {
-        list-style-type: lower-alpha;
-    }
-
-    // Code blocks
-    pre {
-        background: #1e293b;
-        color: #e2e8f0;
-        padding: $space-md;
-        border-radius: $radius-md;
-        overflow-x: auto;
-        margin: 1.5em 0;
-        font-family: 'Monaco', 'Menlo', monospace;
-        font-size: 14px;
-    }
-
-    code {
-        background: $admin-panel;
-        padding: 2px 6px;
-        border-radius: $radius-xs;
-        font-family: 'Monaco', 'Menlo', monospace;
-        font-size: 14px;
-    }
-
-    // Horizontal rule
-    hr {
-        border: none;
-        border-top: 2px solid $admin-border;
-        margin: 2em 0;
-    }
-
-    // Links
-    a {
-        color: $admin-primary;
-        text-decoration: underline;
     }
 
     &:focus {

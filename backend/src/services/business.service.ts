@@ -205,6 +205,25 @@ export class BusinessServiceManager {
         return result.rows[0];
     }
 
+    async updateTestimonial(id: string, dto: CreateBusinessTestimonialDto): Promise<BusinessTestimonial | null> {
+        const result = await query<BusinessTestimonial>(
+            `UPDATE business_testimonials 
+             SET client_name = COALESCE($1, client_name), 
+                 company = COALESCE($2, company),
+                 content = COALESCE($3, content), 
+                 rating = COALESCE($4, rating), 
+                 avatar_url = COALESCE($5, avatar_url),
+                 updated_at = NOW()
+             WHERE id = $6 RETURNING *`,
+            [dto.client_name, dto.company, dto.content, dto.rating, dto.avatar_url, id]
+        );
+        return result.rows[0] || null;
+    }
+
+    async deleteTestimonial(id: string): Promise<void> {
+        await query('DELETE FROM business_testimonials WHERE id = $1', [id]);
+    }
+
     // ==========================================
     // USERS MANAGEMENT
     // ==========================================

@@ -200,6 +200,27 @@ router.post('/testimonials', auth, adminOnly, async (req, res) => {
     }
 });
 
+// Update Testimonial
+router.put('/testimonials/:id', auth, adminOnly, async (req, res) => {
+    try {
+        const testimonial = await businessService.updateTestimonial(req.params.id, req.body);
+        if (!testimonial) return res.status(404).json({ error: 'Testimonial not found' });
+        res.json(testimonial);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update testimonial' });
+    }
+});
+
+// Delete Testimonial
+router.delete('/testimonials/:id', auth, adminOnly, async (req, res) => {
+    try {
+        await businessService.deleteTestimonial(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete testimonial' });
+    }
+});
+
 // Create Client
 router.post('/clients', auth, adminOnly, async (req, res) => {
     try {

@@ -28,6 +28,10 @@
         </div>
 
         <div class="right">
+            <button class="btn-preview" (click)="openPreview()" title="Preview how this post will look to visitors">
+                <span class="material-icons-round">visibility</span>
+                Preview
+            </button>
             <button class="btn-primary" (click)="savePost()" [disabled]="saving()">
                 @if (saving()) {
                 <span class="spinner"></span>
@@ -200,20 +204,79 @@
 
         <!-- CANVAS SECTION -->
         <section class="editor-canvas">
-            <div class="editor-wrapper">
+            <div class="editor-wrapper" #canvasContainer>
+                <!-- Toolbar -->
                 <div class="ngx-toolbar-wrapper">
                     <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"
                         [colorPresets]="colorPresets"></ngx-editor-menu>
 
-                    <button class="custom-image-btn" (click)="triggerEditorImageUpload()" title="Upload Image">
+                    <!-- Image upload button -->
+                    <button class="custom-image-btn" (click)="triggerEditorImageUpload()" title="Add Floating Image">
                         <span class="material-icons-round">add_photo_alternate</span>
                     </button>
                     <input type="file" accept="image/*" (change)="onEditorImageUpload($event)" #editorImageInput
                         hidden />
+
+                    <!-- Floating image tools (only show when image is selected) -->
+                    @if (selectedImageId()) {
+                    <div class="floating-toolbar">
+                        <button class="toolbar-btn" (click)="alignImage('left')" title="Align Left">
+                            <span class="material-icons-round">format_align_left</span>
+                        </button>
+                        <button class="toolbar-btn" (click)="alignImage('center')" title="Align Center">
+                            <span class="material-icons-round">format_align_center</span>
+                        </button>
+                        <button class="toolbar-btn" (click)="alignImage('right')" title="Align Right">
+                            <span class="material-icons-round">format_align_right</span>
+                        </button>
+                        <div class="divider"></div>
+                        <button class="toolbar-btn" (click)="bringForward()" title="Bring Forward">
+                            <span class="material-icons-round">flip_to_front</span>
+                        </button>
+                        <button class="toolbar-btn" (click)="sendBackward()" title="Send Backward">
+                            <span class="material-icons-round">flip_to_back</span>
+                        </button>
+                        <button class="toolbar-btn" (click)="duplicateSelected()" title="Duplicate">
+                            <span class="material-icons-round">content_copy</span>
+                        </button>
+                        <button class="toolbar-btn danger" (click)="onImageDelete(selectedImageId()!)" title="Delete">
+                            <span class="material-icons-round">delete</span>
+                        </button>
+                    </div>
+                    }
+
+                    <!-- Autosave indicator -->
+                    @if (autoSaving()) {
+                    <span class="autosave-indicator saving">
+                        <span class="spinner-sm"></span>
+                        Saving...
+                    </span>
+                    } @else if (lastSavedAt()) {
+                    <span class="autosave-indicator saved">
+                        <span class="material-icons-round">check_circle</span>
+                        Saved {{ lastSavedAt() }}
+                    </span>
+                    }
                 </div>
 
-                <ngx-editor [editor]="editor" [(ngModel)]="content" (ngModelChange)="markDirty()"
-                    [placeholder]="'Write your story...'" class="ngx-editor-canvas"></ngx-editor>
+                <!-- HYBRID CANVAS: Flow + Floating Layers -->
+                <div class="blog-canvas" [style.width.px]="CANVAS_WIDTH" [style.padding.px]="CANVAS_PADDING">
+                    <!-- Flow Layer: Normal text editing -->
+                    <div class="flow-layer">
+                        <ngx-editor [editor]="editor" [(ngModel)]="content" (ngModelChange)="onContentChange()"
+                            [placeholder]="'Write your story...'" class="ngx-editor-canvas"></ngx-editor>
+                    </div>
+
+                    <!-- Floating Layer: Draggable images -->
+                    <div class="floating-layer" [style.inset.px]="CANVAS_PADDING">
+                        @for (image of floatingImages(); track image.id) {
+                        <app-floating-image [image]="image" [canvasWidth]="CANVAS_INNER_WIDTH"
+                            (select)="onImageSelect($event)" (positionChange)="onImagePositionChange($event)"
+                            (sizeChange)="onImageSizeChange($event)" (deleteRequest)="onImageDelete($event)">
+                        </app-floating-image>
+                        }
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -222,6 +285,13 @@
 @if (showCropper) {
 <app-image-cropper-modal [imageChangedEvent]="imageEvent" [aspectRatio]="16/9" (cropConfirm)="onCropConfirm($event)"
     (cropCancel)="onCropCancel()"></app-image-cropper-modal>
+}
+
+@if (showEditorImageCropper) {
+<app-image-cropper-modal [imageChangedEvent]="editorImageEvent" [aspectRatio]="16/9" [showAlignmentOptions]="true"
+    [showAspectToggle]="true" (cropConfirmWithOptions)="onEditorImageCropConfirm($event)"
+    (cropCancel)="onEditorImageCropCancel()">
+</app-image-cropper-modal>
 }
 
 <!-- UNSAVED CHANGES MODAL -->

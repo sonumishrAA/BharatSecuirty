@@ -4,27 +4,45 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: transparent;
-    border-radius: 20px;
+    background: $bg-card;
+    border: 1px solid $border-light;
+    border-radius: $radius-lg;
     overflow: hidden;
     text-decoration: none;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s $ease-out-expo;
     position: relative;
+    box-shadow: $shadow-card;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: $radius-lg;
+        padding: 1px;
+        background: linear-gradient(180deg, rgba($border-light, 0.5), transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
 
     &:hover {
         transform: translateY(-8px);
+        border-color: rgba($primary, 0.3);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba($primary, 0.1);
 
         .card-image img {
             transform: scale(1.05);
         }
 
-        .card-cta {
-            color: $public-accent-light;
-            gap: 12px;
+        .read-now {
+            color: $primary;
+            gap: 8px;
         }
 
         .image-overlay {
-            opacity: 0.4;
+            opacity: 0.3;
         }
     }
 }
@@ -34,26 +52,21 @@
     width: 100%;
     aspect-ratio: 16/10;
     overflow: hidden;
-    border-radius: 20px;
-    margin-bottom: 24px;
-    background: $public-bg-card;
+    background: darken($bg-card, 2%);
 
     img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.8s ease;
     }
 }
 
 .image-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 100%);
-    opacity: 0;
+    inset: 0;
+    background: linear-gradient(to top, rgba($bg-card, 0.9) 0%, transparent 60%);
+    opacity: 0.6;
     transition: opacity 0.3s ease;
 }
 
@@ -63,11 +76,53 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: $public-bg-card;
-    color: rgba(255, 255, 255, 0.1);
+    background: darken($bg-card, 3%);
+    color: rgba(255, 255, 255, 0.05);
 
     .material-icons-round {
         font-size: 48px;
+    }
+}
+
+.card-tags {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+}
+
+.tag {
+    display: inline-flex;
+    padding: 6px 12px;
+    @include glass;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: $text-xs;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: $radius-full;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(8px);
+
+    // Dynamic colors based on category
+    &[data-category="osint_guide"] {
+        color: $cat-osint;
+        border-bottom: 2px solid $cat-osint;
+    }
+
+    &[data-category="scam_alert"] {
+        color: $cat-scam;
+        border-bottom: 2px solid $cat-scam;
+    }
+
+    &[data-category="resource"] {
+        color: $cat-news;
+        border-bottom: 2px solid $cat-news;
+    }
+
+    &[data-category="security_research"] {
+        color: $cat-cyber;
+        border-bottom: 2px solid $cat-cyber;
     }
 }
 
@@ -75,94 +130,77 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 0 8px;
-}
-
-.card-tags {
-    margin-bottom: 16px;
-}
-
-.tag {
-    display: inline-block;
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    border-radius: 4px;
-
-    // Dynamic colors based on category
-    &[data-category="blog"] {
-        color: #8b5cf6;
-        background: rgba(139, 92, 246, 0.15);
-    }
-
-    &[data-category="osint_guide"] {
-        color: $category-osint;
-        background: rgba(16, 185, 129, 0.15);
-    }
-
-    &[data-category="scam_alert"] {
-        color: $category-scam;
-        background: rgba(239, 68, 68, 0.15);
-    }
-
-    &[data-category="resource"] {
-        color: $category-resource;
-        background: rgba(245, 158, 11, 0.15);
-    }
-
-    &[data-category="ai_ml"] {
-        color: $category-ai;
-        background: rgba(236, 72, 153, 0.15);
-    }
+    padding: $spacing-lg;
+    position: relative;
+    z-index: 2;
+    background: $bg-card;
+    border-top: 1px solid rgba(255, 255, 255, 0.02);
 }
 
 .card-title {
-    font-size: 20px;
+    font-size: $text-lg;
     font-weight: 700;
     line-height: 1.4;
-    color: white;
-    margin-bottom: 12px;
+    color: $text-main;
+    margin-bottom: $spacing-sm;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    transition: color 0.2s ease;
+
+    .blog-card:hover & {
+        color: white;
+        text-shadow: 0 0 15px rgba($primary, 0.3);
+    }
 }
 
-.blog-card-date {
-    font-size: $font-sm;
-    color: $public-text-subtle;
-    margin-bottom: $space-md;
-}
-
-// ===== EXCERPT =====
-.blog-card-excerpt {
-    font-size: $font-md;
-    color: $public-text-muted;
-    line-height: 1.7;
-    margin-bottom: $space-lg;
+.card-excerpt {
+    font-size: $text-sm;
+    color: $text-muted;
+    line-height: 1.6;
+    margin-bottom: $spacing-md;
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     flex: 1;
 }
 
-// ===== READ NOW =====
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid $border-light;
+    padding-top: $spacing-md;
+    margin-top: auto;
+}
+
+.date {
+    font-size: $text-xs;
+    color: $text-secondary;
+    font-weight: 500;
+}
+
 .read-now {
     display: inline-flex;
     align-items: center;
-    gap: $space-xs;
-    font-size: $font-md;
+    gap: 4px;
+    font-size: $text-sm;
     font-weight: 600;
-    color: $public-accent;
-    margin-top: auto;
-    transition: all $transition-normal;
+    color: $text-secondary;
+    transition: all 0.3s ease;
 
     .material-icons-round {
-        font-size: 18px;
-        transition: transform $transition-normal;
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .blog-card:hover & {
+        .material-icons-round {
+            transform: translateX(4px);
+        }
     }
 }

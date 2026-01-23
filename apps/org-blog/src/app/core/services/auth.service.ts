@@ -73,7 +73,7 @@ export class AuthService {
         return this.http.get<User>(`${this.API_URL}/me`).pipe(
             tap((user) => this.userSignal.set(user)),
             catchError(() => {
-                this.logout(false); // Clear session but don't redirect
+                // this.logout(false); // Removed to persist session on error
                 return of(null);
             })
         );

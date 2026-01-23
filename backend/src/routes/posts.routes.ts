@@ -15,6 +15,8 @@ const router = Router();
  * PUT    /api/posts/:id                - Update post (admin)
  * DELETE /api/posts/:id                - Delete post (admin)
  * PATCH  /api/posts/:id/status         - Toggle status (admin)
+ * PUT    /api/posts/:id/draft          - Autosave draft (admin)
+ * PUT    /api/posts/:id/publish        - Publish post (admin)
  */
 
 // Public routes
@@ -29,4 +31,9 @@ router.put('/:id', authMiddleware, adminMiddleware, (req, res) => postsControlle
 router.delete('/:id', authMiddleware, adminMiddleware, (req, res) => postsController.delete(req, res));
 router.patch('/:id/status', authMiddleware, adminMiddleware, (req, res) => postsController.toggleStatus(req, res));
 
+// Canvas Editor routes (admin only)
+router.put('/:id/draft', authMiddleware, adminMiddleware, (req, res) => postsController.saveDraft(req, res));
+router.put('/:id/publish', authMiddleware, adminMiddleware, (req, res) => postsController.publish(req, res));
+
 export default router;
+

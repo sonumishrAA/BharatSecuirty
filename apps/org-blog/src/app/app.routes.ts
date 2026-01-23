@@ -22,9 +22,9 @@ export const routes: Routes = [
         loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
     },
 
-    // ===== FALLBACK =====
+    // ===== 404 NOT FOUND =====
     {
         path: '**',
-        redirectTo: ''
+        loadComponent: () => import('./public/pages/not-found/not-found.component').then(m => m.NotFoundComponent)
     }
 ];

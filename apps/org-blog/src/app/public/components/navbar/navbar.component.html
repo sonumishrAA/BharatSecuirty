@@ -2,46 +2,51 @@
     <div class="container nav-container">
         <!-- Logo -->
         <a routerLink="/" class="nav-logo">
-            <span class="logo-icon">🛡️</span>
-            <span class="logo-text">bharat<strong>security</strong></span>
+            <span class="logo-icon neon-text">🛡️</span>
+            <span class="logo-text">BHARAT<span class="neon-text">SECURITY</span></span>
         </a>
 
         <!-- Desktop Nav -->
         <nav class="nav-menu">
             <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
-                class="nav-link">Blog</a>
-            <a routerLink="/" [queryParams]="{category: 'osint_guide'}" class="nav-link">OSINT Guide</a>
-            <a routerLink="/" [queryParams]="{category: 'scam_alert'}" class="nav-link">Scam Alert</a>
-            <a routerLink="/" [queryParams]="{category: 'resource'}" class="nav-link">Resources</a>
+                class="nav-link">Home</a>
+            <a routerLink="/" [queryParams]="{category: 'blog'}" routerLinkActive="active" class="nav-link">Blog</a>
+            <a routerLink="/" [queryParams]="{category: 'osint_guide'}" routerLinkActive="active"
+                class="nav-link">OSINT</a>
+            <a routerLink="/" [queryParams]="{category: 'scam_alert'}" routerLinkActive="active" class="nav-link">Scam
+                Alert</a>
+            <a routerLink="/" [queryParams]="{category: 'resource'}" routerLinkActive="active"
+                class="nav-link">Resources</a>
         </nav>
 
-        <!-- CTA -->
+        <!-- Actions -->
         <div class="nav-actions">
             <a href="https://bharatsecurity.com" class="btn-cta">
-                Get Started
-                <span class="material-icons-round">arrow_forward</span>
+                <span>Start Protection</span>
+                <span class="material-icons-round">bolt</span>
             </a>
         </div>
 
         <!-- Mobile Hamburger -->
-        <button class="hamburger" [class.open]="open()" (click)="toggleMenu()" aria-label="Menu">
+        <button class="hamburger" [class.open]="open()" (click)="toggleMenu()" aria-label="Toggle Menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
     </div>
 
-    <!-- Mobile Menu (Slide-in Drawer) -->
+    <!-- Mobile Menu -->
     <div class="mobile-drawer" [class.show]="open()">
         <nav class="drawer-nav">
-            <a routerLink="/" (click)="closeMenu()">Blog</a>
+            <a routerLink="/" (click)="closeMenu()">Home</a>
+            <a routerLink="/" [queryParams]="{category: 'blog'}" (click)="closeMenu()">Blog</a>
             <a routerLink="/" [queryParams]="{category: 'osint_guide'}" (click)="closeMenu()">OSINT Guide</a>
-            <a routerLink="/" [queryParams]="{category: 'scam_alert'}" (click)="closeMenu()">Scam Alert</a>
-            <a routerLink="/" [queryParams]="{category: 'resource'}" (click)="closeMenu()">Resources</a>
-            <a routerLink="/about" (click)="closeMenu()">About</a>
+            <a routerLink="/" [queryParams]="{category: 'scam_alert'}" (click)="closeMenu()">Scam Watch</a>
+            <a routerLink="/" [queryParams]="{category: 'resource'}" (click)="closeMenu()">Tools & Resources</a>
+            <hr class="drawer-divider">
+            <a href="https://bharatsecurity.com" class="drawer-cta">
+                Get Protected <span class="material-icons-round">shield</span>
+            </a>
         </nav>
-        <a href="https://bharatsecurity.com" class="drawer-cta">
-            Get Started
-        </a>
     </div>
 </header>

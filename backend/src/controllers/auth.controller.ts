@@ -4,17 +4,43 @@ import type { LoginDto } from '../models/User.js';
 
 /**
  * Auth Controller
- * Handles authentication endpoints
+ * Handles authentication endpoints with security hardening
  */
+
+// Input validation helpers
+const sanitizeInput = (input: string): string => {
+    if (!input) return '';
+    // Remove dangerous characters that could be used for injection
+    return input
+        .trim()
+        .replace(/[<>'"`;\\]/g, '') // Remove XSS/injection chars
+        .substring(0, 255); // Limit length
+};
+
+const isValidEmail = (email: string): boolean => {
+    // Strict email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email) && email.length <= 255;
+};
+
+const isValidPassword = (password: string): boolean => {
+    // Password must be 6-128 chars, no injection characters
+    return password.length >= 6 &&
+        password.length <= 128 &&
+        !/[<>'"`;\\]/.test(password);
+};
+
 export class AuthController {
     /**
      * POST /api/auth/login
+     * Security: Input validation, rate limiting should be added at nginx/middleware level
      */
     async login(req: Request, res: Response): Promise<void> {
         try {
-            const dto: LoginDto = req.body;
+            const { email, password } = req.body;
 
-            if (!dto.email || !dto.password) {
+            // Validate required fields
+            if (!email || !password) {
                 res.status(400).json({
                     error: 'Bad Request',
                     message: 'Email and password are required',
@@ -22,12 +48,34 @@ export class AuthController {
                 return;
             }
 
+            // Sanitize and validate email
+            const sanitizedEmail = sanitizeInput(email.toLowerCase());
+            if (!isValidEmail(sanitizedEmail)) {
+                res.status(400).json({
+                    error: 'Bad Request',
+                    message: 'Invalid email format',
+                });
+                return;
+            }
+
+            // Validate password format (prevent injection)
+            if (!isValidPassword(password)) {
+                res.status(400).json({
+                    error: 'Bad Request',
+                    message: 'Invalid password format',
+                });
+                return;
+            }
+
+            // Use sanitized email for login
+            const dto: LoginDto = { email: sanitizedEmail, password };
             const result = await authService.login(dto);
 
             if (!result) {
+                // Generic error to prevent user enumeration
                 res.status(401).json({
                     error: 'Unauthorized',
-                    message: 'Invalid email or password',
+                    message: 'Invalid credentials',
                 });
                 return;
             }

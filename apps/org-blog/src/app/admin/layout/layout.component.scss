@@ -10,12 +10,12 @@
 // ===== SIDEBAR =====
 .admin-sidebar {
     width: 260px;
-    background: white;
-    border-right: 1px solid $admin-border;
+    background: $bg-secondary;
+    border-right: 1px solid $border-medium;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header {
@@ -66,8 +66,8 @@
         }
 
         &:hover {
-            background: $admin-panel;
-            color: $admin-text;
+            background: rgba($primary, 0.08);
+            color: $text-main;
 
             .material-icons-round {
                 transform: scale(1.1);

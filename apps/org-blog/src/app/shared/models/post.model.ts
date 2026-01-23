@@ -1,12 +1,16 @@
 /**
  * Post Model
  */
+import { EditorJSON } from './editor-json.model';
+
 export interface Post {
     id: string;
     title: string;
     slug: string;
     excerpt: string;
-    content: any; // TipTap JSON
+    content: any; // Legacy TipTap JSON (for backwards compatibility)
+    editor_json?: EditorJSON; // New canvas editor format
+    html_snapshot?: string; // Pre-rendered HTML for public view
     cover_image_url: string | null;
     meta_title: string | null;
     meta_description: string | null;
@@ -30,6 +34,7 @@ export interface PostDto {
     slug: string;
     excerpt: string;
     content: any;
+    editor_json?: EditorJSON; // New canvas editor format
     cover_image_url?: string;
     meta_title?: string;
     meta_description?: string;

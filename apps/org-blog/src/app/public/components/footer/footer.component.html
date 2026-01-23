@@ -2,34 +2,39 @@
     <div class="container footer-container">
         <!-- LEFT -->
         <div class="footer-brand">
-            <h2>BharatSecurity</h2>
+            <a routerLink="/" class="footer-logo">
+                <span class="logo-text">BHARAT<span class="neon-text">SECURITY</span></span>
+            </a>
             <p>
-                Cyber awareness, OSINT guides, scam alerts and digital safety
-                resources for everyone.
+                Advanced cyber intelligence, OSINT methodologies, and scam prevention for the digital age.
             </p>
         </div>
 
         <!-- RIGHT -->
         <div class="footer-links">
             <div>
-                <h4>Explore</h4>
-                <a routerLink="/blog">Blog</a>
+                <h4>Intelligence</h4>
+                <a routerLink="/blog">Latest Intel</a>
                 <a routerLink="/osint">OSINT Guide</a>
-                <a routerLink="/scam-alert">Scam Alert</a>
-                <a routerLink="/resources">Resources</a>
+                <a routerLink="/scam-alert">Scam Watch</a>
             </div>
 
             <div>
                 <h4>Company</h4>
-                <a routerLink="/about">About</a>
-                <a routerLink="/contact">Contact</a>
-                <a routerLink="/privacy-policy">Privacy Policy</a>
-                <a routerLink="/terms">Terms & Conditions</a>
+                <a routerLink="/about">About Us</a>
+                <a routerLink="/privacy-policy">Privacy</a>
+                <a routerLink="/terms">Terms</a>
             </div>
         </div>
     </div>
 
     <div class="footer-bottom container">
-        © {{ currentYear }} BharatSecurity. All rights reserved.
+        <p>
+            © {{ currentYear }} BharatSecurity. All frequencies secured. | Engineered by
+            <a href="https://www.linkedin.com/in/sonu-mishra-57961525a/" target="_blank" rel="noopener noreferrer"
+                class="developer-link">
+                Sonu Mishra
+            </a>
+        </p>
     </div>
 </footer>

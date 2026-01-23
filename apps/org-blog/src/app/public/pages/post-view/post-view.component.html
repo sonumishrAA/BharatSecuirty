@@ -26,7 +26,7 @@
         <div class="container">
             <!-- Breadcrumb -->
             <div class="breadcrumb">
-                <a routerLink="/blog">Blog</a>
+                <a routerLink="/">Article</a>
                 <span class="separator">/</span>
                 <span class="current">{{ formatCategory(post()!.category) }}</span>
             </div>
@@ -46,17 +46,36 @@
         </div>
     </div>
 
+    <!-- REMOVED small-container class to use full standard container width -->
     <div class="container">
-        <div class="post-layout">
+        <div class="post-layout full-width">
             <!-- Main Content -->
             <div class="post-main">
-                @if (post()!.cover_image_url) {
+                <!-- @if (post()!.cover_image_url) {
                 <div class="post-cover">
                     <img [src]="post()!.cover_image_url" [alt]="post()!.title" />
                 </div>
-                }
+                } -->
 
-                <div class="article-body" [innerHTML]="renderContent()"></div>
+                <div class="blog-canvas" [style.zoom]="scaleFactor()" [style.min-height.px]="canvasMinHeight()">
+                    <!-- Flow Layer (Text) -->
+                    <div class="flow-layer" [innerHTML]="renderContent()"></div>
+
+                    <!-- Floating Layer (Images) -->
+                    @if (post()?.editor_json?.floating?.length) {
+                    <div class="floating-layer">
+                        @for (img of post()!.editor_json!.floating; track img.id) {
+                        <div class="float-item" [style.left.px]="img.x" [style.top.px]="img.y + 60"
+                            [style.width.px]="img.width" [style.height.px]="img.height" [style.z-index]="img.zIndex">
+                            <img [src]="img.src" [alt]="img.alt || ''">
+                            @if (img.caption) {
+                            <div class="caption">{{ img.caption }}</div>
+                            }
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
 
                 <!-- Author Bio -->
                 <div class="author-box">
@@ -70,90 +89,84 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Sticky Sidebar -->
-            <aside class="post-sidebar">
-                <!-- Subscribe Widget -->
-                <div class="sidebar-widget subscribe-widget">
-                    <h3>Stay Updated</h3>
-                    <p>Get the latest OSINT techniques & security alerts delivered to your inbox.</p>
-                    <form (submit)="subscribe($event)" class="subscribe-form">
-                        <input type="email" placeholder="Enter your email" [(ngModel)]="email" name="email" required>
-                        <button type="submit">Subscribe</button>
-                        <p class="form-note">No spam, unsubscribe anytime.</p>
-                    </form>
-                </div>
-
-                <!-- CTA: Hire Us -->
-                <app-cta-card title="Secure Your Business"
-                    description="Need professional penetration testing or OSINT investigations?"
-                    buttonText="Book Consultation" link="https://bs-net-business.netlify.app/services" icon="🛡️"
-                    type="primary"></app-cta-card>
-
-                <!-- Share Buttons -->
-                <div class="sidebar-widget share-widget">
-                    <h4>Share this article</h4>
-                    <div class="share-buttons">
-                        <!-- Facebook -->
-                        <button class="share-btn facebook" (click)="sharePost('facebook')" title="Share on Facebook">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                            </svg>
-                        </button>
-
-                        <!-- WhatsApp -->
-                        <button class="share-btn whatsapp" (click)="sharePost('whatsapp')" title="Share on WhatsApp">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-                                </path>
-                            </svg>
-                        </button>
-
-                        <!-- Telegram -->
-                        <button class="share-btn telegram" (click)="sharePost('telegram')" title="Share on Telegram">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
-
-                        <!-- Twitter/X -->
-                        <button class="share-btn twitter" (click)="sharePost('twitter')" title="Share on Twitter">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z">
-                                </path>
-                            </svg>
-                        </button>
-
-                        <!-- LinkedIn -->
-                        <button class="share-btn linkedin" (click)="sharePost('linkedin')" title="Share on LinkedIn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
-                                </path>
-                                <rect x="2" y="9" width="4" height="12"></rect>
-                                <circle cx="4" cy="4" r="2"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </aside>
         </div>
 
-        <!-- Bottom CTA Banner -->
-        <div class="post-cta-banner container">
+        <!-- NEW BOTTOM WIDGET SECTION -->
+        <div class="post-bottom-widgets">
+            <!-- Subscribe Widget -->
+            <div class="sidebar-widget subscribe-widget">
+                <h3>Stay Updated</h3>
+                <p>Get the latest OSINT techniques & security alerts delivered to your inbox.</p>
+                <form (submit)="subscribe($event)" class="subscribe-form">
+                    <input type="email" placeholder="Enter your email" [(ngModel)]="email" name="email" required>
+                    <button type="submit">Subscribe</button>
+                    <p class="form-note">No spam, unsubscribe anytime.</p>
+                </form>
+            </div>
+
+            <!-- CTA: Hire Us -->
+            <app-cta-card title="Secure Your Business"
+                description="Need professional penetration testing or OSINT investigations?"
+                buttonText="Book Consultation" link="https://bs-net-business.netlify.app/services" icon="🛡️"
+                type="primary"></app-cta-card>
+
+            <!-- Share Buttons -->
+            <div class="sidebar-widget share-widget">
+                <h4>Share this article</h4>
+                <div class="share-buttons">
+                    <!-- Facebook -->
+                    <button class="share-btn facebook" (click)="sharePost('facebook')" title="Share on Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                        </svg>
+                    </button>
+
+                    <!-- WhatsApp -->
+                    <button class="share-btn whatsapp" (click)="sharePost('whatsapp')" title="Share on WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <!-- Telegram -->
+                    <button class="share-btn telegram" (click)="sharePost('telegram')" title="Share on Telegram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+
+                    <!-- Twitter/X -->
+                    <button class="share-btn twitter" (click)="sharePost('twitter')" title="Share on Twitter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <!-- LinkedIn -->
+                    <button class="share-btn linkedin" (click)="sharePost('linkedin')" title="Share on LinkedIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                            </path>
+                            <rect x="2" y="9" width="4" height="12"></rect>
+                            <circle cx="4" cy="4" r="2"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom CTA Banner (Preserved) -->
+        <div class="post-cta-banner">
             <div class="banner-content">
                 <h2>Need expert help with cybersecurity?</h2>
                 <p>Our team of experts can help you secure your digital assets and investigate threats.</p>

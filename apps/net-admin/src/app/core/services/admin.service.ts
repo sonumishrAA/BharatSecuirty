@@ -134,6 +134,10 @@ export class AdminService {
         return this.http.post<BusinessTestimonial>(`${this.apiUrl}/testimonials`, data);
     }
 
+    updateTestimonial(id: string, data: BusinessTestimonial): Observable<BusinessTestimonial> {
+        return this.http.put<BusinessTestimonial>(`${this.apiUrl}/testimonials/${id}`, data);
+    }
+
     deleteTestimonial(id: string): Observable<any> {
         return this.http.delete(`${this.apiUrl}/testimonials/${id}`);
     }

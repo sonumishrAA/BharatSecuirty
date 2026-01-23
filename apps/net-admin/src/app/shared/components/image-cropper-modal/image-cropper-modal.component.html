@@ -16,7 +16,7 @@
             <div class="cropper-wrapper">
                 <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="maintainAspectRatio"
                     [aspectRatio]="aspectRatio" [resizeToWidth]="1200" format="png" [transform]="transform"
-                    (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded($event)"
+                    [onlyScaleDown]="true" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded($event)"
                     (cropperReady)="cropperReady()" (loadImageFailed)="loadImageFailed()"></image-cropper>
             </div>
 

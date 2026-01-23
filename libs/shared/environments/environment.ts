@@ -5,8 +5,8 @@ export const environment = {
     apiUrl: 'http://localhost:3000/api',
 
     // Frontend Apps (Development)
-    userPortalUrl: 'http://localhost:4203',
-    blogUrl: 'http://localhost:4204',
-    adminUrl: 'http://localhost:4202',
-    businessUrl: 'http://localhost:4201'
+    businessUrl: 'http://localhost:4200',
+    adminUrl: 'http://localhost:4201',
+    userPortalUrl: 'http://localhost:4202',
+    blogUrl: 'http://localhost:4203'
 };

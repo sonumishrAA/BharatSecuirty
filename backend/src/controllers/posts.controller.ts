@@ -237,6 +237,68 @@ export class PostsController {
     }
 
     /**
+     * PUT /api/posts/:id/draft - Autosave draft
+     */
+    async saveDraft(req: Request, res: Response): Promise<void> {
+        try {
+            const { editor_json } = req.body;
+
+            if (!editor_json) {
+                res.status(400).json({
+                    error: 'Bad Request',
+                    message: 'editor_json is required',
+                });
+                return;
+            }
+
+            const result = await postsService.saveDraft(req.params.id, editor_json);
+            res.json({
+                success: true,
+                saved_at: result.savedAt.toISOString(),
+            });
+        } catch (error: any) {
+            console.error('Save draft error:', error);
+            if (error.message === 'Post not found') {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to save draft',
+            });
+        }
+    }
+
+    /**
+     * PUT /api/posts/:id/publish - Publish post
+     */
+    async publish(req: Request, res: Response): Promise<void> {
+        try {
+            const { editor_json } = req.body;
+            const post = await postsService.publish(req.params.id, editor_json);
+
+            if (!post) {
+                res.status(404).json({
+                    error: 'Not Found',
+                    message: 'Post not found',
+                });
+                return;
+            }
+
+            res.json(preparePost(post));
+        } catch (error) {
+            console.error('Publish error:', error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: 'Failed to publish post',
+            });
+        }
+    }
+
+    /**
      * GET /api/posts/categories/grouped
      */
     async getGroupedByCategory(req: Request, res: Response): Promise<void> {
@@ -262,3 +324,4 @@ export class PostsController {
 }
 
 export const postsController = new PostsController();
+

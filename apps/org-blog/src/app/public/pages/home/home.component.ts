@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PostsService } from '@core/services/posts.service';
@@ -13,6 +13,10 @@ interface CategoryTab {
 }
 
 import { CommonModule, DatePipe } from '@angular/common';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 // RouterLink already imported from @angular/router
 
 @Component({
@@ -22,7 +26,7 @@ import { CommonModule, DatePipe } from '@angular/common';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Category tabs with colors
   categories: (CategoryTab & { color: string })[] = [
     // 'All' is handled manually in template
@@ -64,8 +68,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (category && this.isValidCategory(category)) {
         this.filterCategory(category as PostCategory);
       } else {
-        // Optional: reset to 'all' if no valid category, but maybe unnecessary if we want to keep state
-        // currently defaulting to 'all' on init
+        this.filterCategory('all');
       }
     });
 
@@ -209,5 +212,53 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isValidCategory(cat: string): boolean {
     return ['blog', 'osint_guide', 'scam_alert', 'resource', 'all'].includes(cat);
+  }
+
+  ngAfterViewInit() {
+    // Hero Animations
+    const heroTl = gsap.timeline();
+
+    heroTl.from('.hero-badge', {
+      y: -20,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out'
+    })
+      .from('.hero-title', {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+      }, '-=0.6')
+      .from('.hero-subtitle', {
+        y: 20,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+      }, '-=0.8')
+      .from('.subscribe-form', {
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        ease: 'back.out(1.7)'
+      }, '-=0.6');
+
+    // Featured Slider Animation
+    gsap.from('.featured-slider-container', {
+      x: 50,
+      opacity: 0,
+      duration: 1,
+      delay: 0.5,
+      ease: 'power3.out'
+    });
+
+    // Blog Grid Stagger
+    ScrollTrigger.batch('.blog-card', {
+      onEnter: batch => gsap.to(batch, { opacity: 1, y: 0, stagger: 0.15, overwrite: true }),
+      start: 'top 85%',
+    });
+
+    // Set initial state for scroll trigger elements
+    gsap.set('.blog-card', { y: 50, opacity: 0 });
   }
 }
