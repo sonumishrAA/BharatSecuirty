@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { runMigrations } from '../scripts/run-migrations.js';
+
 import { pool } from '../config/database.js';
 import bcrypt from 'bcryptjs';
 
