@@ -1,121 +1,156 @@
-@use '../../../../styles/variables' as *;
+@import '../../../../styles/variables';
 
 .dialog-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(5, 5, 16, 0.8);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
-    animation: fadeIn 0.2s ease;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease-out;
 }
 
 .dialog-box {
-    background: white;
-    border-radius: $radius-xl;
-    padding: $space-xl;
+    background: rgba(20, 20, 35, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 32px;
     width: 90%;
     max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     text-align: center;
-    box-shadow: $shadow-xl;
-    animation: scaleIn 0.25s $ease-bounce;
+    position: relative;
+    overflow: hidden;
+    animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    // Glowing border based on type
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 1px;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+
+    &.primary::before {
+        background: linear-gradient(135deg, #00f2fe, transparent);
+    }
+
+    &.danger::before {
+        background: linear-gradient(135deg, #ef4444, transparent);
+    }
+
+    &.warning::before {
+        background: linear-gradient(135deg, #f97316, transparent);
+    }
 }
 
 .dialog-icon {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto $space-md;
+    margin: 0 auto 20px;
+    font-size: 32px;
 
-    .material-icons-round {
-        font-size: 32px;
+    .primary & {
+        background: rgba(0, 242, 254, 0.1);
+        color: #00f2fe;
     }
 
     .danger & {
-        background: $admin-danger-light;
-        color: $admin-danger;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
     }
 
     .warning & {
-        background: $admin-warning-light;
-        color: $admin-warning;
-    }
-
-    .info & {
-        background: $admin-info-light;
-        color: $admin-info;
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
     }
 }
 
 .dialog-title {
-    font-size: $font-xl;
-    font-weight: 600;
-    color: $admin-text;
-    margin-bottom: $space-sm;
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 10px;
 }
 
 .dialog-message {
-    font-size: $font-md;
-    color: $admin-muted;
-    margin-bottom: $space-xl;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
     line-height: 1.5;
+    margin: 0 0 30px;
 }
 
 .dialog-actions {
     display: flex;
-    gap: $space-sm;
+    gap: 12px;
     justify-content: center;
 
     button {
-        padding: $space-sm $space-lg;
-        border-radius: $radius-md;
-        font-size: $font-md;
-        font-weight: 500;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
         cursor: pointer;
-        transition: all $transition-fast;
+        transition: all 0.2s ease;
         border: none;
     }
 
     .btn-cancel {
-        background: $admin-panel;
-        color: $admin-muted;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
 
         &:hover {
-            background: darken($admin-panel, 5%);
+            background: rgba(255, 255, 255, 0.1);
         }
     }
 
     .btn-confirm {
-        color: white;
+        color: #050510;
 
-        &.danger {
-            background: $admin-danger;
+        &.primary {
+            background: #00f2fe;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
 
             &:hover {
-                background: darken($admin-danger, 8%);
-                box-shadow: 0 4px 12px rgba($admin-danger, 0.4);
+                background: #33f5fe;
+            }
+        }
+
+        &.danger {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+
+            &:hover {
+                background: #f87171;
             }
         }
 
         &.warning {
-            background: $admin-warning;
+            background: #f97316;
+            color: white;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
 
             &:hover {
-                background: darken($admin-warning, 8%);
+                background: #fb923c;
             }
         }
 
-        &.info {
-            background: $admin-info;
-
-            &:hover {
-                background: darken($admin-info, 8%);
-            }
+        &:hover {
+            transform: translateY(-2px);
         }
     }
 }
@@ -130,7 +165,7 @@
     }
 }
 
-@keyframes scaleIn {
+@keyframes scaleUp {
     from {
         opacity: 0;
         transform: scale(0.9);

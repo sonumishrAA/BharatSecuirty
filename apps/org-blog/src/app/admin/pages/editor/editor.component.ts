@@ -5,6 +5,7 @@ import { TitleCasePipe, DecimalPipe } from '@angular/common';
 import { PostsService } from '@core/services/posts.service';
 import { MediaService, MediaFile } from '@core/services/media.service';
 import { ToastService } from '@core/services/toast.service';
+import { ConfirmDialogService } from '@core/services/confirm-dialog.service';
 import { PostDto, PostCategory, PostStatus } from '@shared/models/post.model';
 import {
     EditorJSON,
@@ -39,7 +40,6 @@ export class EditorComponent implements OnInit, OnDestroy {
 
     // UI State
     sidebarVisible = signal(false);
-    showUnsavedModal = signal(false);
 
     // Cropper State (for cover images)
     showCropper = false;
@@ -120,7 +120,8 @@ export class EditorComponent implements OnInit, OnDestroy {
         public router: Router,
         private postsService: PostsService,
         private mediaService: MediaService,
-        private toast: ToastService
+        private toast: ToastService,
+        private confirm: ConfirmDialogService
     ) { }
 
     @HostListener('window:beforeunload', ['$event'])
@@ -376,7 +377,16 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.markDirty();
     }
 
-    onImageDelete(imageId: string): void {
+    async onImageDelete(imageId: string): Promise<void> {
+        const confirmed = await this.confirm.confirm({
+            title: 'Remove Image',
+            message: 'Remove this image from the canvas?',
+            confirmText: 'Remove',
+            type: 'warning'
+        });
+
+        if (!confirmed) return;
+
         this.editorJson.update(json => ({
             ...json,
             floating: json.floating.filter(img => img.id !== imageId)
@@ -542,23 +552,27 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.markDirty();
     }
 
-    goBack(): void {
+    async goBack(): Promise<void> {
+        // If dirty, confirm first
         if (this.dirty()) {
-            this.showUnsavedModal.set(true);
-            return;
+            const confirmed = await this.confirm.confirm({
+                title: 'Unsaved Changes',
+                message: 'You have unsaved changes. Do you really want to leave without saving?',
+                confirmText: 'Leave without Saving',
+                cancelText: 'Keep Editing',
+                type: 'warning'
+            });
+
+            if (!confirmed) return;
+
+            // If confirmed, clear dirty flag and proceed
+            this.dirty.set(false);
         }
+
         this.router.navigate(['/admin']);
     }
 
-    confirmLeave(): void {
-        this.showUnsavedModal.set(false);
-        this.dirty.set(false);
-        this.router.navigate(['/admin']);
-    }
-
-    cancelLeave(): void {
-        this.showUnsavedModal.set(false);
-    }
+    // Removed manual modal methods (confirmLeave, cancelLeave) as they are replaced by ConfirmDialogService
 
     // ===== SAVE POST =====
     savePost(): void {

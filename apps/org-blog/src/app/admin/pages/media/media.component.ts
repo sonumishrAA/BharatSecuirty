@@ -1,5 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { MediaService, MediaFile, MediaList } from '@core/services/media.service';
+import { ConfirmDialogService } from '@core/services/confirm-dialog.service';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
     selector: 'app-media',
@@ -12,7 +14,11 @@ export class MediaComponent implements OnInit {
     media = signal<MediaList>({ covers: [], files: [] });
     loading = signal(true);
 
-    constructor(private mediaService: MediaService) { }
+    constructor(
+        private mediaService: MediaService,
+        private confirm: ConfirmDialogService,
+        private toast: ToastService
+    ) { }
 
     ngOnInit(): void {
         this.fetchMedia();
@@ -33,17 +39,26 @@ export class MediaComponent implements OnInit {
 
     async copyUrl(url: string): Promise<void> {
         await navigator.clipboard.writeText(url);
-        alert('Copied');
+        this.toast.success('URL Copied');
     }
 
-    deleteFile(filename: string, type: 'covers' | 'files'): void {
-        if (!confirm('Delete permanently?')) return;
-
-        this.mediaService.delete(filename, type).subscribe({
-            next: () => {
-                this.fetchMedia();
-            }
+    async deleteFile(filename: string, type: 'covers' | 'files'): Promise<void> {
+        const confirmed = await this.confirm.confirm({
+            title: 'Delete File',
+            message: 'Are you sure you want to permanently delete this file? This action cannot be undone.',
+            confirmText: 'Delete',
+            type: 'danger'
         });
+
+        if (confirmed) {
+            this.mediaService.delete(filename, type).subscribe({
+                next: () => {
+                    this.toast.success('File deleted');
+                    this.fetchMedia();
+                },
+                error: () => this.toast.error('Failed to delete file')
+            });
+        }
     }
 
     getFilename(url: string): string {

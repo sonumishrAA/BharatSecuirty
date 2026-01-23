@@ -110,7 +110,7 @@ import { environment } from '@environments';
                         <p>Our team of experts can help you secure your digital assets and investigate threats.</p>
                     </div>
                     <div class="banner-actions">
-                        <a href="https://bharatsecurity.com/contact" class="btn-primary">Contact Us</a>
+                        <a href="bs-net-buisness.netlify.app/contact" class="btn-primary">Contact Us</a>
                     </div>
                 </div>
             </div>

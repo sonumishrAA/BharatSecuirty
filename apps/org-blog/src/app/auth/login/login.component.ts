@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
@@ -10,7 +10,7 @@ import { AuthService } from '@core/services/auth.service';
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     email = '';
     password = '';
     loading = signal(false);
@@ -20,6 +20,11 @@ export class LoginComponent {
         private authService: AuthService,
         private router: Router
     ) { }
+
+    ngOnInit() {
+        // Auto-logout when visiting login page
+        this.authService.logout();
+    }
 
     onSubmit(): void {
         this.error.set('');

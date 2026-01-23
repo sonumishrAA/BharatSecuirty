@@ -70,7 +70,7 @@ export const upload = multer({
  * Get public URL for uploaded file
  */
 export function getFileUrl(filename: string, type: 'covers' | 'files'): string {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000';
     return `${baseUrl}/uploads/${type}/${filename}`;
 }
 

@@ -293,29 +293,3 @@
     (cropCancel)="onEditorImageCropCancel()">
 </app-image-cropper-modal>
 }
-
-<!-- UNSAVED CHANGES MODAL -->
-@if (showUnsavedModal()) {
-<div class="modal-overlay" (click)="cancelLeave()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-icon warning">
-            <span class="material-icons-round">warning_amber</span>
-        </div>
-        <h2 class="modal-title">Unsaved Changes</h2>
-        <p class="modal-text">
-            You have unsaved changes that will be lost if you leave this page.
-            Do you want to continue without saving?
-        </p>
-        <div class="modal-actions">
-            <button class="btn-cancel" (click)="cancelLeave()">
-                <span class="material-icons-round">edit</span>
-                Keep Editing
-            </button>
-            <button class="btn-danger" (click)="confirmLeave()">
-                <span class="material-icons-round">exit_to_app</span>
-                Leave Without Saving
-            </button>
-        </div>
-    </div>
-</div>
-}
